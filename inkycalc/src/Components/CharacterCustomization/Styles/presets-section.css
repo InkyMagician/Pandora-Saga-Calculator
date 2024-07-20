@@ -58,3 +58,11 @@
 .preset-item button:last-child:hover {
     background-color: #a52a2a;
 }
+.update-preset-button {
+    background-color: var(--accent-color);
+    color: var(--surface-color);
+}
+
+    .update-preset-button:hover {
+        background-color: #b8860b;
+    }

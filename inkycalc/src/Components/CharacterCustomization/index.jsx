@@ -20,7 +20,7 @@ import './styles/responsive.css';
 import './styles/animations.css';
 
 const gearWithEnchantAndSoul = ['Helmet', 'Torso', 'Pants', 'Gloves', 'Boots', 'Shield', 'Weapon'];
-const enchantmentRules = {
+const armorEnchantmentRules = {
     1: 1, 2: 2, 3: 3, 4: 5, 5: 7, 6: 9, 7: 12, 8: 16, 9: 21, 10: 27,
 };
 
@@ -62,6 +62,7 @@ const defaultBaseStats = {
         Mage: { STA: 2, STR: 2, AGI: 5, DEX: 6, SPI: 10, INT: 9 },
     },
 };
+
 const CharacterCustomization = () => {
     const [selectedRace, setSelectedRace] = useState('');
     const [selectedClass, setSelectedClass] = useState('');
@@ -95,7 +96,7 @@ const CharacterCustomization = () => {
     const [presets, setPresets] = useState([]);
     const [presetName, setPresetName] = useState('');
     const [showPresetModal, setShowPresetModal] = useState(false);
-
+    const [enchantmentConditions, setEnchantmentConditions] = useState({});
     const updateTotalStats = useCallback((base, equipment, manual) => {
         setTotalStats({
             STA: base.STA + manual.STA + equipment.STA,
@@ -107,42 +108,6 @@ const CharacterCustomization = () => {
         });
     }, []);
 
-    const updateEquipmentStats = useCallback((newGear, newMoon1 = selectedMoon1, newMoon3 = selectedMoon3) => {
-        const newEquipmentStats = { STA: 0, STR: 0, AGI: 0, DEX: 0, SPI: 0, INT: 0 };
-        const newAdditionalStats = {};
-
-        const processStats = (item) => {
-            if (item) {
-                const { stats, additionalStats } = item;
-                Object.entries(stats).forEach(([stat, value]) => {
-                    if (['STA', 'STR', 'AGI', 'DEX', 'SPI', 'INT'].includes(stat)) {
-                        newEquipmentStats[stat] += value;
-                    }
-                });
-                additionalStats.forEach(({ key, value }) => {
-                    if (key && value) {
-                        const numValue = parseFloat(value);
-                        if (!isNaN(numValue)) {
-                            newAdditionalStats[key] = (newAdditionalStats[key] || 0) + numValue;
-                        }
-                    }
-                });
-            }
-        };
-
-        Object.values(newGear).forEach(processStats);
-        processStats(newMoon1);
-        processStats(newMoon3);
-
-        Object.values(soulSlotData).forEach((slotData) => {
-            Object.values(slotData).forEach(processStats);
-        });
-
-        setEquipmentStats(newEquipmentStats);
-        updateTotalStats(baseStats, newEquipmentStats, manualStats);
-        setAdditionalStats(newAdditionalStats);
-    }, [selectedMoon1, selectedMoon3, soulSlotData, baseStats, manualStats, updateTotalStats]);
-
     useEffect(() => {
         if (selectedRace && selectedClass) {
             const newBaseStats = defaultBaseStats[selectedRace][selectedClass];
@@ -151,13 +116,156 @@ const CharacterCustomization = () => {
         }
     }, [selectedRace, selectedClass, equipmentStats, manualStats, updateTotalStats]);
 
-    useEffect(() => {
-        updateEquipmentStats(gear);
-    }, [gear, updateEquipmentStats]);
+    const applyEnchantmentConditions = useCallback((gearItem, allGear) => {
+        console.log('Applying enchantment conditions for:', gearItem);
+        console.log('All gear:', allGear);
 
-    useEffect(() => {
-        const savedPresets = JSON.parse(localStorage.getItem('characterPresets')) || [];
-        setPresets(savedPresets);
+        if (!gearItem.enchantmentConditions) return { main: {}, additional: {} };
+
+        const appliedStats = { main: {}, additional: {} };
+
+        gearItem.enchantmentConditions.forEach((condition, index) => {
+            console.log(`Checking condition ${index}:`, condition);
+
+            let shouldApply = false;
+            let multiplier = 1;
+
+            switch (condition.type) {
+                case 'onEnchant':
+                    shouldApply = gearItem.enchantment === condition.enchantmentLevel;
+                    console.log(`onEnchant check: ${shouldApply} (Item enchant: ${gearItem.enchantment}, Required: ${condition.enchantmentLevel})`);
+                    break;
+                case 'every1Enchant':
+                    multiplier = Math.floor(gearItem.enchantment / 1);
+                    shouldApply = gearItem.enchantment >= 1;
+                    break;
+                case 'every2Enchant':
+                    multiplier = Math.floor(gearItem.enchantment / 2);
+                    shouldApply = gearItem.enchantment >= 2;
+                    break;
+                case 'every3Enchant':
+                    multiplier = Math.floor(gearItem.enchantment / 3);
+                    shouldApply = gearItem.enchantment >= 3;
+                    break;
+            }
+
+            if (condition.isComboItem) {
+                const comboItemType = condition.comboItemType.toLowerCase();
+                const comboItem = gearWithEnchantAndSoul.reduce((found, slot) => {
+                    if (found) return found;
+                    const item = allGear[slot];
+                    return (item && item.name.toLowerCase() === condition.comboItemName.toLowerCase()) ? item : null;
+                }, null);
+
+                const comboApplies = comboItem !== null;
+                shouldApply = shouldApply && comboApplies;
+                console.log(`Combo check: ${comboApplies}`, {
+                    comboItemType,
+                    comboItem,
+                    requiredName: condition.comboItemName,
+                    comboApplies
+                });
+            }
+
+            console.log(`Condition should apply: ${shouldApply}`);
+
+            if (shouldApply) {
+                if (condition.perkType === 'mainStat' || condition.perkType === 'both') {
+                    Object.entries(condition.statValue).forEach(([stat, value]) => {
+                        appliedStats.main[stat] = (appliedStats.main[stat] || 0) + value * multiplier;
+                    });
+                }
+                if (condition.perkType === 'additionalStat' || condition.perkType === 'both') {
+                    appliedStats.additional[condition.additionalStatName] = (appliedStats.additional[condition.additionalStatName] || 0) + condition.additionalStatValue * multiplier;
+                }
+            }
+        });
+
+        console.log('Applied stats:', appliedStats);
+        return appliedStats;
+    }, []); // Removed gearWithEnchantAndSoul from the dependency array
+    const updateEquipmentStats = useCallback((newGear, newMoon1 = selectedMoon1, newMoon3 = selectedMoon3) => {
+        console.log('Updating equipment stats with:', newGear);
+        const newEquipmentStats = { STA: 0, STR: 0, AGI: 0, DEX: 0, SPI: 0, INT: 0 };
+        const newAdditionalStats = {};
+
+        const processStats = (item, slot) => {
+            if (item) {
+                console.log(`Processing ${slot}:`, item);
+                const { stats, additionalStats } = item;
+
+                // Apply base stats
+                Object.entries(stats).forEach(([stat, value]) => {
+                    if (['STA', 'STR', 'AGI', 'DEX', 'SPI', 'INT'].includes(stat)) {
+                        newEquipmentStats[stat] += value;
+                        console.log(`${slot}: Added base stat: ${stat} +${value}`);
+                    }
+                });
+
+                // Apply additional stats
+                additionalStats.forEach(({ key, value }) => {
+                    if (key && value) {
+                        const numValue = parseFloat(value);
+                        if (!isNaN(numValue)) {
+                            newAdditionalStats[key] = (newAdditionalStats[key] || 0) + numValue;
+                            console.log(`${slot}: Added additional stat: ${key} +${numValue}`);
+                        }
+                    }
+                });
+
+                // Apply enchantment conditions
+                if (item.enchantmentConditions && item.enchantmentConditions.length > 0) {
+                    console.log(`${slot}: Applying enchantment conditions`);
+                    const appliedConditions = applyEnchantmentConditions(item, newGear);
+                    console.log(`${slot}: Applied conditions result:`, appliedConditions);
+
+                    Object.entries(appliedConditions.main).forEach(([stat, value]) => {
+                        newEquipmentStats[stat] += value;
+                        console.log(`${slot}: Added enchantment main stat: ${stat} +${value}`);
+                    });
+                    Object.entries(appliedConditions.additional).forEach(([stat, value]) => {
+                        newAdditionalStats[stat] = (newAdditionalStats[stat] || 0) + value;
+                        console.log(`${slot}: Added enchantment additional stat: ${stat} +${value}`);
+                    });
+                }
+
+                // Apply armor enchantment rules
+                if (item.armor && item.enchantment) {
+                    const armorBonus = armorEnchantmentRules[item.enchantment] || 0;
+                    newAdditionalStats['Armor'] = (newAdditionalStats['Armor'] || 0) + armorBonus;
+                    console.log(`${slot}: Added armor enchantment bonus: Armor +${armorBonus}`);
+                }
+            }
+        };
+
+        // Process all gear items
+        Object.entries(newGear).forEach(([slot, item]) => processStats(item, slot));
+
+        // Process moons
+        processStats(newMoon1, 'Moon1');
+        processStats(newMoon3, 'Moon3');
+
+        // Process soul slots
+        Object.entries(soulSlotData).forEach(([slot, slotData]) => {
+            Object.entries(slotData).forEach(([index, soulItem]) => {
+                processStats(soulItem, `${slot}-Soul-${index}`);
+            });
+        });
+
+        console.log('Final equipment stats:', newEquipmentStats);
+        console.log('Final additional stats:', newAdditionalStats);
+
+        setEquipmentStats(newEquipmentStats);
+        updateTotalStats(baseStats, newEquipmentStats, manualStats);
+        setAdditionalStats(newAdditionalStats);
+    }, [selectedMoon1, selectedMoon3, soulSlotData, baseStats, manualStats, updateTotalStats, applyEnchantmentConditions]);
+    const updateTotalArmor = useCallback((newGear) => {
+        const totalArmor = Object.values(newGear).reduce((sum, item) => {
+            const baseArmor = item.armor || 0;
+            const enchantmentBonus = armorEnchantmentRules[item.enchantment] || 0;
+            return sum + baseArmor + enchantmentBonus;
+        }, 0);
+        setTotalArmor(totalArmor);
     }, []);
 
     const calculateStatCost = (currentValue) => {
@@ -193,7 +301,6 @@ const CharacterCustomization = () => {
 
         setStatPoints(prevPoints => prevPoints - costDifference);
     };
-    // ... (continued from part 1)
 
     const handleGearClick = (slot) => {
         setSelectedGearSlot(slot);
@@ -216,6 +323,71 @@ const CharacterCustomization = () => {
         setShowGearModal(true);
     };
 
+    const handleGearStatChange = (stat, value) => {
+        setGearStats(prevStats => ({
+            ...prevStats,
+            [stat]: Math.max(0, prevStats[stat] + value)
+        }));
+    };
+
+    const handleAdditionalStatChange = (index, field, value) => {
+        const newInputs = [...additionalStatsInputs];
+        newInputs[index][field] = value;
+        setAdditionalStatsInputs(newInputs);
+    };
+
+    const removeAdditionalStatInput = (index) => {
+        setAdditionalStatsInputs(additionalStatsInputs.filter((_, i) => i !== index));
+    };
+
+    const addAdditionalStatInput = () => {
+        setAdditionalStatsInputs([...additionalStatsInputs, { key: '', value: '' }]);
+    };
+
+    const handleGearSave = () => {
+        const newGearItem = {
+            name: gearName,
+            stats: gearStats,
+            additionalStats: additionalStatsInputs,
+            enchantment: gearEnchantment,
+            soulSlots: gearSoulSlots,
+            armor: gearArmor,
+            enchantmentConditions: enchantmentConditions[selectedGearSlot] || []
+        };
+        console.log('Saving gear item:', newGearItem);
+
+        const newGear = {
+            ...gear,
+            [selectedGearSlot]: newGearItem
+        };
+        console.log('Updated gear:', newGear);
+
+        setGear(newGear);
+        updateEquipmentStats(newGear);
+        updateTotalArmor(newGear);
+        setShowGearModal(false);
+    };
+
+    useEffect(() => {
+        console.log('Enchantment conditions changed:', enchantmentConditions);
+        updateEquipmentStats(gear);
+    }, [enchantmentConditions, gear, updateEquipmentStats]);
+
+    const handleEnchantmentConditionSave = (newConditions) => {
+        setEnchantmentConditions(prevConditions => ({
+            ...prevConditions,
+            [selectedGearSlot]: newConditions
+        }));
+    };
+
+    const handleGearUnload = (slot) => {
+        const newGear = { ...gear };
+        delete newGear[slot];
+        setGear(newGear);
+        updateEquipmentStats(newGear);
+        updateTotalArmor(newGear);
+    };
+
     const handleMoonClick = (moonSlot) => {
         setSelectedMoonSlot(moonSlot);
         const existingMoon = moonSlot === 'moon1' ? selectedMoon1 : selectedMoon3;
@@ -231,40 +403,11 @@ const CharacterCustomization = () => {
         setShowMoonModal(true);
     };
 
-    const handleGearStatChange = (stat, value) => {
-        setGearStats(prevGearStats => ({
-            ...prevGearStats,
-            [stat]: Math.max(0, prevGearStats[stat] + value)
-        }));
-    };
-
     const handleMoonStatChange = (stat, value) => {
         setMoonStats(prevStats => ({
             ...prevStats,
             [stat]: Math.max(0, prevStats[stat] + value)
         }));
-    };
-
-    const addAdditionalStatInput = () => {
-        setAdditionalStatsInputs([...additionalStatsInputs, { key: '', value: '' }]);
-    };
-
-    const removeAdditionalStatInput = (index) => {
-        setAdditionalStatsInputs(additionalStatsInputs.filter((_, i) => i !== index));
-    };
-
-    const handleAdditionalStatChange = (index, field, value) => {
-        const newInputs = [...additionalStatsInputs];
-        newInputs[index][field] = value;
-        setAdditionalStatsInputs(newInputs);
-    };
-
-    const addMoonAdditionalStat = () => {
-        setMoonAdditionalStats([...moonAdditionalStats, { key: '', value: '' }]);
-    };
-
-    const removeMoonAdditionalStat = (index) => {
-        setMoonAdditionalStats(moonAdditionalStats.filter((_, i) => i !== index));
     };
 
     const handleMoonAdditionalStatChange = (index, field, value) => {
@@ -273,31 +416,12 @@ const CharacterCustomization = () => {
         setMoonAdditionalStats(newInputs);
     };
 
-    const updateTotalArmor = useCallback((newGear) => {
-        const totalArmor = Object.values(newGear).reduce((sum, item) => {
-            const baseArmor = item.armor || 0;
-            const enchantmentBonus = enchantmentRules[item.enchantment] || 0;
-            return sum + baseArmor + enchantmentBonus;
-        }, 0);
-        setTotalArmor(totalArmor);
-    }, []);
+    const removeMoonAdditionalStat = (index) => {
+        setMoonAdditionalStats(moonAdditionalStats.filter((_, i) => i !== index));
+    };
 
-    const handleGearSave = () => {
-        const newGear = {
-            ...gear,
-            [selectedGearSlot]: {
-                name: gearName,
-                stats: gearStats,
-                additionalStats: additionalStatsInputs,
-                enchantment: gearEnchantment,
-                soulSlots: gearSoulSlots,
-                armor: gearArmor
-            }
-        };
-        setGear(newGear);
-        updateEquipmentStats(newGear);
-        updateTotalArmor(newGear);
-        setShowGearModal(false);
+    const addMoonAdditionalStat = () => {
+        setMoonAdditionalStats([...moonAdditionalStats, { key: '', value: '' }]);
     };
 
     const handleMoonSave = () => {
@@ -313,14 +437,6 @@ const CharacterCustomization = () => {
         }
         updateEquipmentStats(gear, selectedMoonSlot === 'moon1' ? moonData : selectedMoon1, selectedMoonSlot === 'moon3' ? moonData : selectedMoon3);
         setShowMoonModal(false);
-    };
-
-    const handleGearUnload = (slot) => {
-        const newGear = { ...gear };
-        delete newGear[slot];
-        setGear(newGear);
-        updateEquipmentStats(newGear);
-        updateTotalArmor(newGear);
     };
 
     const handleSoulSlotClick = (slot, index) => {
@@ -345,18 +461,18 @@ const CharacterCustomization = () => {
         }));
     };
 
-    const addSoulSlotAdditionalStat = () => {
-        setSoulSlotAdditionalStats([...soulSlotAdditionalStats, { key: '', value: '' }]);
+    const handleSoulSlotAdditionalStatChange = (index, field, value) => {
+        const newInputs = [...soulSlotAdditionalStats];
+        newInputs[index][field] = value;
+        setSoulSlotAdditionalStats(newInputs);
     };
 
     const removeSoulSlotAdditionalStat = (index) => {
         setSoulSlotAdditionalStats(soulSlotAdditionalStats.filter((_, i) => i !== index));
     };
 
-    const handleSoulSlotAdditionalStatChange = (index, field, value) => {
-        const newInputs = [...soulSlotAdditionalStats];
-        newInputs[index][field] = value;
-        setSoulSlotAdditionalStats(newInputs);
+    const addSoulSlotAdditionalStat = () => {
+        setSoulSlotAdditionalStats([...soulSlotAdditionalStats, { key: '', value: '' }]);
     };
 
     const handleSoulSlotSave = () => {
@@ -390,7 +506,8 @@ const CharacterCustomization = () => {
             manualStats,
             moon1: selectedMoon1,
             moon3: selectedMoon3,
-            soulSlotData
+            soulSlotData,
+            enchantmentConditions
         };
 
         const updatedPresets = [...presets, newPreset];
@@ -408,6 +525,7 @@ const CharacterCustomization = () => {
         setSelectedMoon1(preset.moon1);
         setSelectedMoon3(preset.moon3);
         setSoulSlotData(preset.soulSlotData);
+        setEnchantmentConditions(preset.enchantmentConditions || {});
 
         updateEquipmentStats(preset.gear, preset.moon1, preset.moon3);
         updateTotalArmor(preset.gear);
@@ -418,6 +536,31 @@ const CharacterCustomization = () => {
         setPresets(updatedPresets);
         localStorage.setItem('characterPresets', JSON.stringify(updatedPresets));
     };
+
+    const updatePreset = (presetToUpdate) => {
+        const updatedPreset = {
+            ...presetToUpdate,
+            race: selectedRace,
+            class: selectedClass,
+            gear,
+            manualStats,
+            moon1: selectedMoon1,
+            moon3: selectedMoon3,
+            soulSlotData,
+            enchantmentConditions
+        };
+
+        const updatedPresets = presets.map(preset =>
+            preset.name === presetToUpdate.name ? updatedPreset : preset
+        );
+
+        setPresets(updatedPresets);
+        localStorage.setItem('characterPresets', JSON.stringify(updatedPresets));
+    };
+
+    useEffect(() => {
+        updateEquipmentStats(gear);
+    }, [gear, updateEquipmentStats]);
 
     const renderSoulSlots = (slot) => {
         const numSlots = gear[slot]?.soulSlots || 0;
@@ -458,12 +601,15 @@ const CharacterCustomization = () => {
                     equipmentStats={equipmentStats}
                     handleStatChange={handleStatChange}
                     additionalStats={additionalStats}
+                    selectedRace={selectedRace}
+                    selectedClass={selectedClass}
                 />
             </div>
             <PresetsSection
                 presets={presets}
                 loadPreset={loadPreset}
                 deletePreset={deletePreset}
+                updatePreset={updatePreset}
             />
             {showGearModal && (
                 <GearModal
@@ -483,6 +629,8 @@ const CharacterCustomization = () => {
                     setGearEnchantment={setGearEnchantment}
                     gearSoulSlots={gearSoulSlots}
                     setGearSoulSlots={setGearSoulSlots}
+                    enchantmentConditions={enchantmentConditions[selectedGearSlot] || []}
+                    handleEnchantmentConditionSave={handleEnchantmentConditionSave}
                     handleGearSave={handleGearSave}
                     setShowGearModal={setShowGearModal}
                 />

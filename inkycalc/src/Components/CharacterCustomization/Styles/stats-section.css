@@ -122,3 +122,8 @@
     font-size: 0.9rem;
     color: var(--text-color);
 }
+.stats-warning {
+    color: var(--error-color);
+    margin-bottom: 1rem;
+    font-style: italic;
+}

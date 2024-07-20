@@ -1,7 +1,6 @@
-
 import PropTypes from 'prop-types';
 
-const PresetsSection = ({ presets, loadPreset, deletePreset }) => {
+const PresetsSection = ({ presets, loadPreset, deletePreset, updatePreset }) => {
     return (
         <div className="presets-section">
             <h3>Saved Presets</h3>
@@ -19,6 +18,12 @@ const PresetsSection = ({ presets, loadPreset, deletePreset }) => {
                                 Load
                             </button>
                             <button
+                                className="update-preset-button"
+                                onClick={() => updatePreset(preset)}
+                            >
+                                Update
+                            </button>
+                            <button
                                 className="delete-preset-button"
                                 onClick={() => deletePreset(preset)}
                             >
@@ -31,12 +36,15 @@ const PresetsSection = ({ presets, loadPreset, deletePreset }) => {
         </div>
     );
 };
+
 PresetsSection.propTypes = {
     presets: PropTypes.arrayOf(PropTypes.shape({
         name: PropTypes.string.isRequired,
         // Add other preset properties here
     })).isRequired,
     loadPreset: PropTypes.func.isRequired,
-    deletePreset: PropTypes.func.isRequired
+    deletePreset: PropTypes.func.isRequired,
+    updatePreset: PropTypes.func.isRequired
 };
+
 export default PresetsSection;

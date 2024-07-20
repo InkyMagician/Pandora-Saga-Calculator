@@ -1,4 +1,3 @@
-
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import PropTypes from 'prop-types';
 
@@ -9,7 +8,9 @@ const StatsSection = ({
     manualStats,
     equipmentStats,
     handleStatChange,
-    additionalStats
+    additionalStats,
+    selectedRace,
+    selectedClass
 }) => {
     const calculateStatCost = (currentValue) => {
         if (currentValue < 30) return 2;
@@ -18,6 +19,8 @@ const StatsSection = ({
         if (currentValue < 90) return 5;
         return 6;
     };
+
+    const isStatChangeEnabled = selectedRace && selectedClass;
 
     const renderStat = (stat) => {
         const baseValue = baseStats[stat] || 0;
@@ -41,14 +44,14 @@ const StatsSection = ({
                 <div className="stat-buttons">
                     <button
                         onClick={() => handleStatChange(stat, 1)}
-                        disabled={baseValue + manualValue >= 99 || statPoints < increaseCost}
+                        disabled={!isStatChangeEnabled || baseValue + manualValue >= 99 || statPoints < increaseCost}
                     >
                         <ChevronUp size={16} />
                         <span className="cost-indicator">{increaseCost}</span>
                     </button>
                     <button
                         onClick={() => handleStatChange(stat, -1)}
-                        disabled={manualValue <= 0}
+                        disabled={!isStatChangeEnabled || manualValue <= 0}
                     >
                         <ChevronDown size={16} />
                         <span className="cost-indicator">{decreaseCost}</span>
@@ -64,6 +67,9 @@ const StatsSection = ({
                 <div className="stats-header">
                     <div className="stat-points">Stat Points: {statPoints}</div>
                 </div>
+                {!isStatChangeEnabled && (
+                    <div className="stats-warning">Select a race and class to modify stats</div>
+                )}
                 <div className="primary-stats">
                     {Object.keys(totalStats).map(renderStat)}
                 </div>
@@ -79,6 +85,7 @@ const StatsSection = ({
         </div>
     );
 };
+
 StatsSection.propTypes = {
     statPoints: PropTypes.number.isRequired,
     totalStats: PropTypes.object.isRequired,
@@ -86,6 +93,9 @@ StatsSection.propTypes = {
     manualStats: PropTypes.object.isRequired,
     equipmentStats: PropTypes.object.isRequired,
     handleStatChange: PropTypes.func.isRequired,
-    additionalStats: PropTypes.object.isRequired
+    additionalStats: PropTypes.object.isRequired,
+    selectedRace: PropTypes.string.isRequired,
+    selectedClass: PropTypes.string.isRequired
 };
+
 export default StatsSection;
