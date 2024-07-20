@@ -1,0 +1,35 @@
+.character-customization {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: rgba(250, 235, 215, 0.9);
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+    border: 2px solid var(--border-color);
+}
+
+.character-customization::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('download.jpg');
+    opacity: 0.1;
+    pointer-events: none;
+}
+
+.content {
+    display: flex;
+    gap: 2rem;
+}
+
+.gear-section, .stats-section {
+    flex: 1;
+    background-color: rgba(255, 255, 255, 0.6);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color);
+}

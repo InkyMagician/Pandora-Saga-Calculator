@@ -1,0 +1,28 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.header select, .header button {
+    flex: 1;
+    min-width: 150px;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: 'MedievalSharp', cursive;
+    background-color: var(--surface-color);
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.header select:hover, .header button:hover {
+    background-color: var(--accent-color);
+    color: var(--surface-color);
+}

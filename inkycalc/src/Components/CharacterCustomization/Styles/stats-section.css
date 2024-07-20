@@ -1,0 +1,124 @@
+.stats-section h3 {
+    font-family: 'MedievalSharp', cursive;
+    color: var(--primary-color);
+    text-align: center;
+    margin-bottom: 1rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.stats-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.stat-points {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    font-family: 'MedievalSharp', cursive;
+}
+
+.primary-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+}
+
+.stat-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: rgba(255, 255, 255, 0.4);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+    border: 1px solid var(--border-color);
+}
+
+.stat-row:hover {
+    background-color: rgba(255, 255, 255, 0.6);
+}
+
+.stat-row::before {
+    content: '⚔️';
+    font-size: 1.2rem;
+    margin-right: 0.5rem;
+}
+
+.stat-name {
+    font-weight: bold;
+    color: var(--text-color);
+    font-family: 'MedievalSharp', cursive;
+}
+
+.stat-value {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.stat-breakdown {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    opacity: 0.7;
+}
+
+.stat-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.stat-buttons button {
+    width: 24px;
+    height: 24px;
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-color);
+}
+
+.stat-buttons button:hover:not(:disabled) {
+    background-color: var(--accent-color);
+    color: var(--surface-color);
+}
+
+.stat-buttons button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.additional-stats-box {
+    margin-top: 2rem;
+    background-color: rgba(255, 255, 255, 0.4);
+    border-radius: 8px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.additional-stats-box h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+    font-family: 'MedievalSharp', cursive;
+}
+
+.additional-stats-box ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.additional-stats-box li {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-color);
+}

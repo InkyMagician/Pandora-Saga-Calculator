@@ -1,0 +1,60 @@
+.presets-section {
+    margin-top: 2rem;
+    background-color: rgba(255, 255, 255, 0.6);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.presets-section h3 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    font-family: 'MedievalSharp', cursive;
+}
+
+.preset-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.4);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    transition: background-color 0.2s ease;
+    border: 1px solid var(--border-color);
+}
+
+.preset-item:hover {
+    background-color: rgba(255, 255, 255, 0.6);
+}
+
+.preset-item span {
+    color: var(--text-color);
+    font-weight: 500;
+    font-family: 'MedievalSharp', cursive;
+}
+
+.preset-item button {
+    background-color: var(--accent-color);
+    color: var(--surface-color);
+    border: none;
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    margin-left: 0.75rem;
+    font-family: 'MedievalSharp', cursive;
+}
+
+.preset-item button:hover {
+    background-color: #b8860b;
+}
+
+.preset-item button:last-child {
+    background-color: var(--error-color);
+}
+
+.preset-item button:last-child:hover {
+    background-color: #a52a2a;
+}

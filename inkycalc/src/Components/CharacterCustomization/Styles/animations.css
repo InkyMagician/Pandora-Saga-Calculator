@@ -1,0 +1,15 @@
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.stat-value.changed {
+    animation: pulse 0.3s ease-in-out;
+}

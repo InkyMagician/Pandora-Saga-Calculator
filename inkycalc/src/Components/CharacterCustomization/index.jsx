@@ -7,7 +7,17 @@ import GearModal from './Modals/GearModal';
 import MoonModal from './Modals/MoonModal';
 import SoulSlotModal from './Modals/SoulSlotModal';
 import PresetModal from './Modals/PresetModal';
-import './CharacterCustomization.css';
+import './styles/global.css';
+import './styles/layout.css';
+import './styles/header.css';
+import './styles/gear-section.css';
+import './styles/stats-section.css';
+import './styles/presets-section.css';
+import './styles/modals.css';
+import './styles/buttons.css';
+import './styles/inputs.css';
+import './styles/responsive.css';
+import './styles/animations.css';
 
 const gearWithEnchantAndSoul = ['Helmet', 'Torso', 'Pants', 'Gloves', 'Boots', 'Shield', 'Weapon'];
 const enchantmentRules = {

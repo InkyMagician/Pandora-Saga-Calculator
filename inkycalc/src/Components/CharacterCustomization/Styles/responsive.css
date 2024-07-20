@@ -1,0 +1,35 @@
+@media (max-width: 768px) {
+    .character-customization {
+        padding: 1rem;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .header select, .header button {
+        max-width: none;
+    }
+
+    .content {
+        flex-direction: column;
+    }
+
+    .gear-buttons {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .primary-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-content {
+        width: 90%;
+        padding: 1.5rem;
+    }
+
+    .modal-stats {
+        grid-template-columns: 1fr;
+    }
+}
