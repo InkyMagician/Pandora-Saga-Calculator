@@ -1,9 +1,30 @@
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 
-const PresetsSection = ({ presets, loadPreset, deletePreset, updatePreset }) => {
+const PresetsSection = ({ presets, loadPreset, deletePreset, updatePreset, savePreset }) => {
+    const [newPresetName, setNewPresetName] = useState('');
+
+    const handleSavePreset = () => {
+        if (newPresetName.trim()) {
+            savePreset(newPresetName.trim());
+            setNewPresetName('');
+        } else {
+            alert('Please enter a name for the preset');
+        }
+    };
+
     return (
         <div className="presets-section">
             <h3>Saved Presets</h3>
+            <div className="new-preset">
+                <input
+                    type="text"
+                    value={newPresetName}
+                    onChange={(e) => setNewPresetName(e.target.value)}
+                    placeholder="New preset name"
+                />
+                <button onClick={handleSavePreset}>Save New Preset</button>
+            </div>
             {presets.length === 0 ? (
                 <p>No presets saved yet.</p>
             ) : (
@@ -44,7 +65,8 @@ PresetsSection.propTypes = {
     })).isRequired,
     loadPreset: PropTypes.func.isRequired,
     deletePreset: PropTypes.func.isRequired,
-    updatePreset: PropTypes.func.isRequired
+    updatePreset: PropTypes.func.isRequired,
+    savePreset: PropTypes.func.isRequired
 };
 
 export default PresetsSection;

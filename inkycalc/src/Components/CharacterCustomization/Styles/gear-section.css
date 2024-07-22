@@ -29,17 +29,17 @@
     text-align: center;
 }
 
-.gear-button:hover {
-    background-color: var(--accent-color);
-    color: var(--surface-color);
-    transform: translateY(-2px);
-}
+    .gear-button:hover {
+        background-color: var(--accent-color);
+        color: var(--surface-color);
+        transform: translateY(-2px);
+    }
 
-.gear-button::before {
-    content: '🛡️';
-    font-size: 1.2rem;
-    margin-right: 0.5rem;
-}
+    .gear-button::before {
+        content: '🛡️';
+        font-size: 1.2rem;
+        margin-right: 0.5rem;
+    }
 
 .unload-gear {
     position: absolute;
@@ -54,9 +54,9 @@
     color: var(--error-color);
 }
 
-.unload-gear:hover {
-    opacity: 1;
-}
+    .unload-gear:hover {
+        opacity: 1;
+    }
 
 .soul-slots {
     position: absolute;
@@ -77,9 +77,9 @@
     transition: background-color 0.2s ease;
 }
 
-.soul-slot.filled {
-    background-color: var(--accent-color);
-}
+    .soul-slot.filled {
+        background-color: var(--accent-color);
+    }
 
 .total-armor {
     margin-top: 1rem;

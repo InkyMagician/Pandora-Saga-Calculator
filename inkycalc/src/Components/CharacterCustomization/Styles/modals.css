@@ -17,27 +17,28 @@
     border-radius: 12px;
     max-width: 500px;
     width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border: 2px solid var(--border-color);
 }
 
-.modal-content h2 {
-    margin-top: 0;
-    margin-bottom: 1.5rem;
-    color: var(--primary-color);
-    font-family: 'MedievalSharp', cursive;
-}
+    .modal-content h2 {
+        margin-top: 0;
+        margin-bottom: 1.5rem;
+        color: var(--primary-color);
+    }
 
-.modal-content label {
-    display: block;
-    margin-bottom: 1rem;
-    font-weight: bold;
-    color: var(--text-color);
-}
+    .modal-content label {
+        display: block;
+        margin-bottom: 1rem;
+        font-weight: bold;
+        color: var(--text-color);
+    }
 
 .modal-stats {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1rem;
     margin-bottom: 1.5rem;
 }
@@ -55,7 +56,6 @@
 .modal-stat-name {
     font-weight: bold;
     color: var(--text-color);
-    font-family: 'MedievalSharp', cursive;
 }
 
 .modal-stat-value {
@@ -69,25 +69,30 @@
     gap: 0.5rem;
 }
 
-.modal-stat-buttons button {
-    width: 24px;
-    height: 24px;
-    background-color: var(--surface-color);
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-color);
-}
+    .modal-stat-buttons button {
+        width: 24px;
+        height: 24px;
+        background-color: var(--surface-color);
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-color);
+    }
 
-.modal-stat-buttons button:hover {
-    background-color: var(--accent-color);
-    color: var(--surface-color);
-}
+        .modal-stat-buttons button:hover:not(:disabled) {
+            background-color: var(--accent-color);
+            color: var(--surface-color);
+        }
+
+        .modal-stat-buttons button:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--accent-color);
+        }
 
 .additional-stats-inputs {
     margin-bottom: 1.5rem;
@@ -106,30 +111,102 @@
     margin-top: 2rem;
 }
 
-.modal-buttons button {
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.2s ease;
-    font-family: 'MedievalSharp', cursive;
+    .modal-buttons button {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background-color 0.2s ease, transform 0.1s ease;
+    }
+
+        .modal-buttons button:hover {
+            transform: translateY(-1px);
+        }
+
+        .modal-buttons button:active {
+            transform: translateY(1px);
+        }
+
+        .modal-buttons button:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.5);
+        }
+
+        .modal-buttons button:first-child {
+            background-color: var(--accent-color);
+            color: var(--surface-color);
+        }
+
+            .modal-buttons button:first-child:hover {
+                background-color: #b8860b;
+            }
+
+        .modal-buttons button:last-child {
+            background-color: var(--error-color);
+            color: white;
+        }
+
+            .modal-buttons button:last-child:hover {
+                background-color: #a52a2a;
+            }
+
+/* Gear Modal Specific Styles */
+.modal.gear-modal {
+    align-items: flex-start;
+    padding-top: 50px;
 }
 
-.modal-buttons button:first-child {
-    background-color: var(--accent-color);
-    color: var(--surface-color);
+.gear-modal .modal-content {
+    display: flex;
+    flex-direction: column;
 }
 
-.modal-buttons button:first-child:hover {
-    background-color: #b8860b;
+.gear-modal-scrollable-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-right: 15px;
+    margin-bottom: 20px;
 }
 
-.modal-buttons button:last-child {
-    background-color: var(--error-color);
-    color: white;
+.gear-modal .modal-buttons {
+    margin-top: auto;
 }
 
-.modal-buttons button:last-child:hover {
-    background-color: #a52a2a;
+/* Custom scrollbar for the gear modal */
+.gear-modal-scrollable-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.gear-modal-scrollable-content::-webkit-scrollbar-track {
+    background: var(--surface-color);
+    border-radius: 4px;
+}
+
+.gear-modal-scrollable-content::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+    .gear-modal-scrollable-content::-webkit-scrollbar-thumb:hover {
+        background: var(--primary-color);
+    }
+
+@media (max-width: 768px) {
+    .modal-content {
+        padding: 1.5rem;
+        max-width: 90%;
+    }
+
+    .modal-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-buttons {
+        flex-direction: column;
+    }
+
+        .modal-buttons button {
+            width: 100%;
+        }
 }

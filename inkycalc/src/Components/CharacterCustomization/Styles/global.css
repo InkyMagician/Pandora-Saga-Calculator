@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=MedievalSharp&family=Roboto:wght@300;400;700&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=MedievalSharp&family=Roboto:wght@300;400;700&display=swap');
 
 :root {
     --primary-color: #8B4513;
@@ -15,7 +15,7 @@
 body {
     background-color: var(--background-color);
     color: var(--text-color);
-    font-family: 'Roboto', sans-serif;
+    font-family: 'MedievalSharp', cursive;
     background-image: url('download.jpg');
     background-repeat: repeat;
 }
@@ -34,9 +34,9 @@ body {
     border-radius: 5px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-    background: var(--primary-color);
-}
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--primary-color);
+    }
 
 /* Ensure all text uses the medieval font */
 body, input, select, button, .stat-name, .stat-value, .modal-content h2, .preset-item span {
@@ -49,23 +49,23 @@ body, input, select, button, .stat-name, .stat-value, .modal-content h2, .preset
     cursor: help;
 }
 
-[data-tooltip]::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: 125%;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 0.5rem;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    white-space: nowrap;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-}
+    [data-tooltip]::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 125%;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 0.5rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
 
-[data-tooltip]:hover::after {
-    opacity: 1;
-}
+    [data-tooltip]:hover::after {
+        opacity: 1;
+    }

@@ -10,7 +10,7 @@ const Header = ({
     selectedMoon1,
     selectedMoon3,
     handleMoonClick,
-    setShowPresetModal
+    
 }) => {
     return (
         <div className="header">
@@ -50,12 +50,7 @@ const Header = ({
                 {selectedMoon3?.name || 'Select Moon 3'}
             </button>
 
-            <button
-                onClick={() => setShowPresetModal(true)}
-                className="preset-button"
-            >
-                Save Preset
-            </button>
+           
         </div>
     );
 };

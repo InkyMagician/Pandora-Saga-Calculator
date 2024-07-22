@@ -1,0 +1,104 @@
+.enchantment-condition-modal .modal-content {
+    display: flex;
+    flex-direction: column;
+    max-height: 80vh;
+    padding: 20px;
+}
+
+.enchantment-condition-modal .scrollable-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-right: 10px;
+    margin-bottom: 20px;
+}
+
+.enchantment-condition-modal .modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+    .enchantment-condition-modal .modal-buttons button {
+        margin-left: 10px;
+    }
+
+.enchantment-condition-modal select,
+.enchantment-condition-modal input[type="text"],
+.enchantment-condition-modal input[type="number"] {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--surface-color);
+    color: var(--text-color);
+}
+
+.enchantment-condition-modal .modal-stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.enchantment-condition-modal .modal-stat-buttons {
+    display: flex;
+    align-items: center;
+}
+
+.enchantment-condition-modal .modal-stat-value {
+    margin: 0 10px;
+}
+
+.enchantment-condition-modal .additional-stat-input,
+.enchantment-condition-modal .combo-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.enchantment-condition-modal label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.enchantment-condition-modal input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+.enchantment-condition-modal .modal-stat-buttons button {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+    .enchantment-condition-modal .modal-stat-buttons button:hover:not(:disabled) {
+        background-color: var(--accent-color);
+        color: var(--surface-color);
+    }
+
+    .enchantment-condition-modal .modal-stat-buttons button:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px var(--accent-color);
+    }
+
+@media (max-width: 768px) {
+    .enchantment-condition-modal .modal-content {
+        padding: 15px;
+    }
+
+    .enchantment-condition-modal .additional-stat-input,
+    .enchantment-condition-modal .combo-item {
+        flex-direction: column;
+        gap: 5px;
+    }
+}

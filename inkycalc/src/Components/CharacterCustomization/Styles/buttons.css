@@ -1,3 +1,4 @@
+/* Base button styles */
 button {
     background-color: var(--accent-color);
     color: var(--surface-color);
@@ -7,19 +8,25 @@ button {
     font-family: 'MedievalSharp', cursive;
     font-size: 1rem;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
-button:hover {
-    background-color: #b8860b;
-}
+    button:hover:not(:disabled) {
+        background-color: #b8860b;
+        transform: translateY(-1px);
+    }
 
-button:disabled {
-    background-color: #E0D5C1;
-    color: #7F6B5D;
-    cursor: not-allowed;
-}
+    button:active:not(:disabled) {
+        transform: translateY(1px);
+    }
 
+    button:disabled {
+        background-color: #E0D5C1;
+        color: #7F6B5D;
+        cursor: not-allowed;
+    }
+
+/* Custom checkbox styles */
 .custom-checkbox {
     display: inline-block;
     position: relative;
@@ -29,11 +36,13 @@ button:disabled {
     user-select: none;
 }
 
-.custom-checkbox input {
-    position: absolute;
-    opacity: 0;
-    cursor: pointer;
-}
+    .custom-checkbox input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        height: 0;
+        width: 0;
+    }
 
 .checkmark {
     position: absolute;
@@ -44,6 +53,7 @@ button:disabled {
     background-color: var(--surface-color);
     border: 2px solid var(--border-color);
     border-radius: 4px;
+    transition: all 0.2s ease;
 }
 
 .custom-checkbox:hover input ~ .checkmark {
@@ -52,19 +62,13 @@ button:disabled {
 
 .custom-checkbox input:checked ~ .checkmark {
     background-color: var(--primary-color);
+    border-color: var(--primary-color);
 }
 
 .checkmark:after {
     content: "";
     position: absolute;
     display: none;
-}
-
-.custom-checkbox input:checked ~ .checkmark:after {
-    display: block;
-}
-
-.custom-checkbox .checkmark:after {
     left: 6px;
     top: 2px;
     width: 5px;
@@ -72,4 +76,15 @@ button:disabled {
     border: solid white;
     border-width: 0 3px 3px 0;
     transform: rotate(45deg);
+}
+
+.custom-checkbox input:checked ~ .checkmark:after {
+    display: block;
+}
+
+/* Focus styles for accessibility */
+button:focus,
+.custom-checkbox input:focus ~ .checkmark {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(218, 165, 32, 0.5);
 }

@@ -1,31 +1,6 @@
+/* Common styles for inputs */
 input[type="text"],
-input[type="number"] {
-    background-color: var(--input-background);
-    color: var(--text-color);
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    padding: 8px 12px;
-    font-family: 'MedievalSharp', cursive;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-    width: 100%;
-    font-size: 1rem;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-input[type="text"]:focus,
-input[type="number"]:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(139, 69, 19, 0.2);
-}
-
-input[type="text"]:disabled,
-input[type="number"]:disabled {
-    background-color: #E0D5C1;
-    color: #7F6B5D;
-    cursor: not-allowed;
-}
-
+input[type="number"],
 select {
     background-color: var(--input-background);
     color: var(--text-color);
@@ -35,14 +10,50 @@ select {
     font-family: 'MedievalSharp', cursive;
     font-size: 1rem;
     width: 100%;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+    /* Focus styles */
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    select:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(139, 69, 19, 0.2);
+    }
+
+    /* Disabled styles */
+    input[type="text"]:disabled,
+    input[type="number"]:disabled,
+    select:disabled {
+        background-color: #E0D5C1;
+        color: #7F6B5D;
+        cursor: not-allowed;
+    }
+
+/* Specific styles for number inputs */
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+/* Specific styles for select */
+select {
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238B4513' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 12px center;
+    padding-right: 36px;
 }
 
-select:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(139, 69, 19, 0.2);
-}
+    /* Hover styles */
+    input[type="text"]:hover:not(:disabled),
+    input[type="number"]:hover:not(:disabled),
+    select:hover:not(:disabled) {
+        border-color: var(--accent-color);
+    }

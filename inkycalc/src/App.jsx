@@ -1,5 +1,4 @@
-
-import CharacterCustomization from './Components/CharacterCustomization';
+import CharacterCustomization from './Components/CharacterCustomization/index.jsx'
 import './App.css';
 
 function App() {

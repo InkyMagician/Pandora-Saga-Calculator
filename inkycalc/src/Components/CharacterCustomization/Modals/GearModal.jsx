@@ -21,38 +21,69 @@ const GearModal = ({
     setGearSoulSlots,
     enchantmentConditions,
     handleEnchantmentConditionSave,
+    comboEffects,
+    handleComboEffectSave,
     handleGearSave,
     setShowGearModal
 }) => {
     const [showEnchantmentConditionModal, setShowEnchantmentConditionModal] = useState(false);
+    const [editingCondition, setEditingCondition] = useState(null);
+    const [isComboEffect, setIsComboEffect] = useState(false);
 
     const handleAddEnchantmentCondition = () => {
-        console.log('Opening enchantment condition modal');
+        setEditingCondition(null);
+        setIsComboEffect(false);
+        setShowEnchantmentConditionModal(true);
+    };
+
+    const handleEditEnchantmentCondition = (condition) => {
+        setEditingCondition(condition);
+        setIsComboEffect(false);
+        setShowEnchantmentConditionModal(true);
+    };
+
+    const handleAddComboEffect = () => {
+        setEditingCondition(null);
+        setIsComboEffect(true);
+        setShowEnchantmentConditionModal(true);
+    };
+
+    const handleEditComboEffect = (effect) => {
+        setEditingCondition(effect);
+        setIsComboEffect(true);
         setShowEnchantmentConditionModal(true);
     };
 
     const handleSaveEnchantmentCondition = (condition) => {
-        console.log('Saving new enchantment condition:', condition);
-        const newConditions = [...enchantmentConditions, condition];
-        console.log('Updated enchantment conditions:', newConditions);
-        handleEnchantmentConditionSave(newConditions);
-        setShowEnchantmentConditionModal(false);
-    };
-
-    const handleCloseEnchantmentConditionModal = () => {
-        console.log('Closing enchantment condition modal');
+        if (isComboEffect) {
+            if (editingCondition) {
+                const newEffects = comboEffects.map(e => e === editingCondition ? condition : e);
+                handleComboEffectSave(newEffects);
+            } else {
+                handleComboEffectSave([...comboEffects, condition]);
+            }
+        } else {
+            if (editingCondition) {
+                const newConditions = enchantmentConditions.map(c => c === editingCondition ? condition : c);
+                handleEnchantmentConditionSave(newConditions);
+            } else {
+                handleEnchantmentConditionSave([...enchantmentConditions, condition]);
+            }
+        }
         setShowEnchantmentConditionModal(false);
     };
 
     const handleRemoveEnchantmentCondition = (index) => {
-        console.log('Removing enchantment condition at index:', index);
         const newConditions = enchantmentConditions.filter((_, i) => i !== index);
-        console.log('New enchantment conditions after removal:', newConditions);
         handleEnchantmentConditionSave(newConditions);
     };
 
+    const handleRemoveComboEffect = (index) => {
+        const newEffects = comboEffects.filter((_, i) => i !== index);
+        handleComboEffectSave(newEffects);
+    };
+
     const renderEnchantmentCondition = (condition, index) => {
-        console.log('Rendering enchantment condition:', condition);
         let conditionText = '';
         switch (condition.type) {
             case 'onEnchant':
@@ -72,7 +103,12 @@ const GearModal = ({
         }
 
         if (condition.isComboItem) {
-            conditionText += `with ${condition.comboItemType} "${condition.comboItemName}" `;
+            conditionText += 'Combo with ';
+            condition.comboItems.forEach((item, i) => {
+                conditionText += `${item.type} "${item.name}"`;
+                if (i < condition.comboItems.length - 1) conditionText += ', ';
+            });
+            conditionText += ': ';
         }
 
         if (condition.perkType === 'mainStat' || condition.perkType === 'both') {
@@ -83,126 +119,156 @@ const GearModal = ({
             });
         }
         if (condition.perkType === 'additionalStat' || condition.perkType === 'both') {
-            conditionText += `+${condition.additionalStatValue} ${condition.additionalStatName} `;
+            condition.additionalStats.forEach((stat, i) => {
+                conditionText += `+${stat.value} ${stat.name}`;
+                if (i < condition.additionalStats.length - 1) conditionText += ', ';
+            });
         }
 
         return (
             <div key={index} className="enchantment-condition">
                 {conditionText}
+                <button onClick={() => handleEditEnchantmentCondition(condition)}>Edit</button>
                 <button onClick={() => handleRemoveEnchantmentCondition(index)}>Remove</button>
             </div>
         );
     };
 
+    const renderComboEffect = (effect, index) => {
+        let effectText = 'Combo: ';
+        if (effect.isComboItem) {
+            effect.comboItems.forEach((item, i) => {
+                effectText += `${item.type} "${item.name}"`;
+                if (i < effect.comboItems.length - 1) effectText += ', ';
+            });
+            effectText += ': ';
+        }
+
+        if (effect.perkType === 'mainStat' || effect.perkType === 'both') {
+            Object.entries(effect.statValue).forEach(([stat, value]) => {
+                if (value > 0) {
+                    effectText += `+${value} ${stat} `;
+                }
+            });
+        }
+        if (effect.perkType === 'additionalStat' || effect.perkType === 'both') {
+            effect.additionalStats.forEach((stat, i) => {
+                effectText += `+${stat.value} ${stat.name}`;
+                if (i < effect.additionalStats.length - 1) effectText += ', ';
+            });
+        }
+
+        return (
+            <div key={index} className="combo-effect">
+                {effectText}
+                <button onClick={() => handleEditComboEffect(effect)}>Edit</button>
+                <button onClick={() => handleRemoveComboEffect(index)}>Remove</button>
+            </div>
+        );
+    };
+
     return (
-        <div className="modal">
+        <div className="modal gear-modal">
             <div className="modal-content">
                 <h2>Gear Input</h2>
-                <label>
-                    Name:
-                    <input
-                        type="text"
-                        value={gearName}
-                        onChange={(e) => {
-                            console.log('Gear name changed:', e.target.value);
-                            setGearName(e.target.value);
-                        }}
-                    />
-                </label>
-                <div className="modal-stats">
-                    {Object.entries(gearStats).map(([stat, value]) => (
-                        <div key={stat} className="modal-stat-row">
-                            <span className="modal-stat-name">{stat}</span>
-                            <span className="modal-stat-value">{value}</span>
-                            <div className="modal-stat-buttons">
-                                <button onClick={() => handleGearStatChange(stat, -1)}>-</button>
-                                <button onClick={() => handleGearStatChange(stat, 1)}>+</button>
+                <div className="gear-modal-scrollable-content">
+                    <label>
+                        Name:
+                        <input
+                            type="text"
+                            value={gearName}
+                            onChange={(e) => setGearName(e.target.value)}
+                        />
+                    </label>
+                    <div className="modal-stats">
+                        {Object.entries(gearStats).map(([stat, value]) => (
+                            <div key={stat} className="modal-stat-row">
+                                <span className="modal-stat-name">{stat}</span>
+                                <span className="modal-stat-value">{value}</span>
+                                <div className="modal-stat-buttons">
+                                    <button onClick={() => handleGearStatChange(stat, -1)}>-</button>
+                                    <button onClick={() => handleGearStatChange(stat, 1)}>+</button>
+                                </div>
                             </div>
+                        ))}
+                    </div>
+                    <div className="additional-stats-inputs">
+                        <h3>Additional Stats:</h3>
+                        {additionalStatsInputs.map((input, index) => (
+                            <div key={index} className="additional-stat-input">
+                                <input
+                                    type="text"
+                                    value={input.key}
+                                    onChange={(e) => handleAdditionalStatChange(index, 'key', e.target.value)}
+                                    placeholder="Stat name"
+                                />
+                                <input
+                                    type="text"
+                                    value={input.value}
+                                    onChange={(e) => handleAdditionalStatChange(index, 'value', e.target.value)}
+                                    placeholder="Value"
+                                />
+                                <button onClick={() => removeAdditionalStatInput(index)}>-</button>
+                            </div>
+                        ))}
+                        <button onClick={addAdditionalStatInput}>+ Add Stat</button>
+                    </div>
+                    <label>
+                        Armor:
+                        <input
+                            type="number"
+                            value={gearArmor}
+                            onChange={(e) => setGearArmor(parseInt(e.target.value) || 0)}
+                        />
+                    </label>
+                    {gearWithEnchantAndSoul.includes(selectedGearSlot) && (
+                        <>
+                            <label>
+                                Enchantment:
+                                <input
+                                    type="number"
+                                    min="0"
+                                    max="10"
+                                    value={gearEnchantment}
+                                    onChange={(e) => setGearEnchantment(parseInt(e.target.value) || 0)}
+                                />
+                            </label>
+                            <div className="scrollable-section">
+                                <h3>Enchantment Conditions</h3>
+                                <div className="scrollable-content">
+                                    {enchantmentConditions.map(renderEnchantmentCondition)}
+                                </div>
+                                <button onClick={handleAddEnchantmentCondition}>Add Enchantment Condition</button>
+                            </div>
+                            <label>
+                                Soul Slots:
+                                <input
+                                    type="number"
+                                    value={gearSoulSlots}
+                                    onChange={(e) => setGearSoulSlots(parseInt(e.target.value) || 0)}
+                                />
+                            </label>
+                        </>
+                    )}
+                    <div className="scrollable-section">
+                        <h3>Combo Effects</h3>
+                        <div className="scrollable-content">
+                            {comboEffects.map(renderComboEffect)}
                         </div>
-                    ))}
+                        <button onClick={handleAddComboEffect}>Add Combo Effect</button>
+                    </div>
                 </div>
-                <div className="additional-stats-inputs">
-                    <h3>Additional Stats:</h3>
-                    {additionalStatsInputs.map((input, index) => (
-                        <div key={index} className="additional-stat-input">
-                            <input
-                                type="text"
-                                value={input.key}
-                                onChange={(e) => handleAdditionalStatChange(index, 'key', e.target.value)}
-                                placeholder="Stat name"
-                            />
-                            <input
-                                type="text"
-                                value={input.value}
-                                onChange={(e) => handleAdditionalStatChange(index, 'value', e.target.value)}
-                                placeholder="Value"
-                            />
-                            <button onClick={() => removeAdditionalStatInput(index)}>-</button>
-                        </div>
-                    ))}
-                    <button onClick={addAdditionalStatInput}>+ Add Stat</button>
-                </div>
-                <label>
-                    Armor:
-                    <input
-                        type="number"
-                        value={gearArmor}
-                        onChange={(e) => {
-                            console.log('Gear armor changed:', e.target.value);
-                            setGearArmor(parseInt(e.target.value) || 0);
-                        }}
-                    />
-                </label>
-                {gearWithEnchantAndSoul.includes(selectedGearSlot) && (
-                    <>
-                        <label>
-                            Enchantment:
-                            <input
-                                type="number"
-                                min="0"
-                                max="10"
-                                value={gearEnchantment}
-                                onChange={(e) => {
-                                    console.log('Gear enchantment changed:', e.target.value);
-                                    setGearEnchantment(parseInt(e.target.value) || 0);
-                                }}
-                            />
-                        </label>
-                        <button onClick={handleAddEnchantmentCondition}>Add Enchantment Condition</button>
-                        {enchantmentConditions.map(renderEnchantmentCondition)}
-                        <label>
-                            Soul Slots:
-                            <input
-                                type="number"
-                                value={gearSoulSlots}
-                                onChange={(e) => {
-                                    console.log('Gear soul slots changed:', e.target.value);
-                                    setGearSoulSlots(parseInt(e.target.value) || 0);
-                                }}
-                            />
-                        </label>
-                    </>
-                )}
                 <div className="modal-buttons">
-                    <button onClick={() => {
-                        console.log('Saving gear:', {
-                            name: gearName,
-                            stats: gearStats,
-                            additionalStats: additionalStatsInputs,
-                            armor: gearArmor,
-                            enchantment: gearEnchantment,
-                            soulSlots: gearSoulSlots,
-                            enchantmentConditions
-                        });
-                        handleGearSave();
-                    }}>Save</button>
+                    <button onClick={handleGearSave}>Save</button>
                     <button onClick={() => setShowGearModal(false)}>Close</button>
                 </div>
             </div>
             {showEnchantmentConditionModal && (
                 <EnchantmentConditionModal
                     onSave={handleSaveEnchantmentCondition}
-                    onClose={handleCloseEnchantmentConditionModal}
+                    onClose={() => setShowEnchantmentConditionModal(false)}
+                    initialCondition={editingCondition}
+                    isComboEffect={isComboEffect}
                 />
             )}
         </div>
@@ -231,6 +297,8 @@ GearModal.propTypes = {
     setGearSoulSlots: PropTypes.func.isRequired,
     enchantmentConditions: PropTypes.array.isRequired,
     handleEnchantmentConditionSave: PropTypes.func.isRequired,
+    comboEffects: PropTypes.array.isRequired,
+    handleComboEffectSave: PropTypes.func.isRequired,
     handleGearSave: PropTypes.func.isRequired,
     setShowGearModal: PropTypes.func.isRequired
 };

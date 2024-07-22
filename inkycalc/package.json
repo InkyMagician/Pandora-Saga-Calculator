@@ -1,18 +1,20 @@
 {
-  "name": "InkyCalc",
+  "name": "inkycalc",
   "version": "0.1.0",
   "private": true,
+  "main": "public/electron.js",
+  "homepage": "./",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "electron-dev": "concurrently \"npm run start\" \"wait-on http://localhost:3000 && electron .\"",
-    "electron-pack": "npm run build && electron-builder",
-    "electron-just-pack": "electron-builder",
-    "electron-prod": "electron .\""
+    "electron-dev": "concurrently \"cross-env BROWSER=none npm start\" \"wait-on http://localhost:3000 && electron .\"",
+    "electron-pack": "npm run build && electron-builder -c.extraMetadata.main=build/electron.js",
+    "electron-just-pack": "electron-builder -c.extraMetadata.main=build/electron.js",
+    "postinstall": "electron-builder install-app-deps",
+    "preelectron-pack": "npm run build"
   },
-  "main": "public/electron.js",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
@@ -28,8 +30,10 @@
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "concurrently": "^7.0.0",
+    "cross-env": "^7.0.3",
     "electron": "^31.2.1",
     "electron-builder": "^24.13.3",
+    "eslint-plugin-node": "^11.1.0",
     "wait-on": "^5.0.0"
   },
   "eslintConfig": {
@@ -53,14 +57,22 @@
   "build": {
     "appId": "com.yourcompany.InkyCalc",
     "productName": "InkyCalc",
+    "files": [
+      "build/**/*",
+      "node_modules/**/*"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    },
     "win": {
       "target": [
         "nsis"
       ],
-      "icon": "path/to/your/icon.ico"
+      "icon": "public/icon.ico"
     },
     "nsis": {
-      "createDesktopShortcut": true
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
     }
   }
 }
