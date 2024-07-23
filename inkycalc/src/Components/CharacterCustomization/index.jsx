@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import {useState, useEffect, useCallback } from 'react';
 import Header from './Header';
 import GearSection from './GearSection';
 import StatsSection from './StatsSection';
@@ -8,7 +8,9 @@ import MoonModal from './Modals/MoonModal';
 import SoulSlotModal from './Modals/SoulSlotModal';
 import PresetModal from './Modals/PresetModal';
 import GearSelectionModal from './Modals/GearSelectionModal';
+import LanguageSwitcher from './LanguageSwitcher';
 import { gearWithEnchantAndSoul, armorEnchantmentRules, defaultBaseStats } from './config';
+import './translations'
 import './styles/global.css';
 import './styles/layout.css';
 import './styles/header.css';
@@ -58,6 +60,7 @@ const CharacterCustomization = () => {
     const [comboEffects, setComboEffects] = useState({});
     const [savedGear, setSavedGear] = useState({});
     const [showGearSelectionModal, setShowGearSelectionModal] = useState(false);
+    const [currentLanguage, setCurrentLanguage] = useState('en');
     useEffect(() => {
         if (selectedRace && selectedClass) {
             const newBaseStats = defaultBaseStats[selectedRace][selectedClass];
@@ -82,6 +85,7 @@ const CharacterCustomization = () => {
             setSavedGear(JSON.parse(loadedGear));
         }
     }, []);
+
     useEffect(() => {
         // Load saved gear data from file on component mount
         if (window.electronAPI) {
@@ -92,6 +96,7 @@ const CharacterCustomization = () => {
             });
         }
     }, []);
+
     const updateTotalStats = useCallback((base, equipment, manual) => {
         setTotalStats({
             STA: base.STA + manual.STA + equipment.STA,
@@ -532,7 +537,6 @@ const CharacterCustomization = () => {
             alert('Please enter a name for the preset');
         }
     };
-
     const handleSaveGear = (gearItem) => {
         setSavedGear(prev => {
             const updatedGear = {
@@ -590,6 +594,19 @@ const CharacterCustomization = () => {
         ));
     };
 
+    const handleLanguageChange = (newLanguage) => {
+        setCurrentLanguage(newLanguage);
+        localStorage.setItem('preferredLanguage', newLanguage);
+    };
+
+    useEffect(() => {
+        const savedLanguage = localStorage.getItem('preferredLanguage');
+        if (savedLanguage) {
+            setCurrentLanguage(savedLanguage);
+        }
+        // ... other existing code in this useEffect
+    }, []);
+
     return (
         <div className="character-customization">
             <Header
@@ -601,7 +618,10 @@ const CharacterCustomization = () => {
                 selectedMoon3={selectedMoon3}
                 handleMoonClick={handleMoonClick}
                 handleSavePreset={handleSavePreset}
-            />
+                currentLanguage={currentLanguage}
+            >
+                <LanguageSwitcher onLanguageChange={handleLanguageChange} />
+            </Header>
             <div className="content">
                 <GearSection
                     gear={gear}
@@ -609,6 +629,7 @@ const CharacterCustomization = () => {
                     handleGearUnload={handleGearUnload}
                     renderSoulSlots={renderSoulSlots}
                     totalArmor={totalArmor}
+                    currentLanguage={currentLanguage}
                 />
                 <StatsSection
                     statPoints={statPoints}
@@ -620,6 +641,7 @@ const CharacterCustomization = () => {
                     additionalStats={additionalStats}
                     selectedRace={selectedRace}
                     selectedClass={selectedClass}
+                    currentLanguage={currentLanguage}
                 />
             </div>
             <PresetsSection
@@ -628,6 +650,7 @@ const CharacterCustomization = () => {
                 deletePreset={deletePreset}
                 updatePreset={updatePreset}
                 savePreset={handleSavePreset}
+                currentLanguage={currentLanguage}
             />
             {showPresetModal && (
                 <PresetModal
@@ -635,6 +658,7 @@ const CharacterCustomization = () => {
                     setPresetName={setPresetName}
                     savePreset={handlePresetSave}
                     setShowPresetModal={setShowPresetModal}
+                    currentLanguage={currentLanguage}
                 />
             )}
             {showGearModal && (
@@ -663,6 +687,7 @@ const CharacterCustomization = () => {
                     setShowGearModal={setShowGearModal}
                     onSaveGear={handleSaveGear}
                     onLoadGear={handleLoadGear}
+                    currentLanguage={currentLanguage}
                 />
             )}
             {showMoonModal && (
@@ -681,6 +706,7 @@ const CharacterCustomization = () => {
                     addMoonAdditionalStat={() => setMoonAdditionalStats(prev => [...prev, { key: '', value: '' }])}
                     handleMoonSave={handleMoonSave}
                     setShowMoonModal={setShowMoonModal}
+                    currentLanguage={currentLanguage}
                 />
             )}
             {showSoulSlotModal && (
@@ -699,6 +725,7 @@ const CharacterCustomization = () => {
                     addSoulSlotAdditionalStat={() => setSoulSlotAdditionalStats(prev => [...prev, { key: '', value: '' }])}
                     handleSoulSlotSave={handleSoulSlotSave}
                     setShowSoulSlotModal={setShowSoulSlotModal}
+                    currentLanguage={currentLanguage}
                 />
             )}
             {showGearSelectionModal && (
@@ -720,6 +747,7 @@ const CharacterCustomization = () => {
                             return updatedGear;
                         });
                     }}
+                    currentLanguage={currentLanguage}
                 />
             )}
         </div>

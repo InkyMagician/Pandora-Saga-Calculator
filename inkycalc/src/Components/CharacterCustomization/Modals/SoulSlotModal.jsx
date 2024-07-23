@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import translations from '../translations';
 
 const SoulSlotModal = ({
     gearName,
@@ -10,20 +11,23 @@ const SoulSlotModal = ({
     removeSoulSlotAdditionalStat,
     addSoulSlotAdditionalStat,
     handleSoulSlotSave,
-    setShowSoulSlotModal
+    setShowSoulSlotModal,
+    currentLanguage
 }) => {
+    const t = translations[currentLanguage];
+
     return (
         <div className="modal">
             <div className="modal-content">
-                <h2>Soul Slot</h2>
+                <h2>{t.soulSlot}</h2>
                 <label>
-                    Name:
+                    {t.name}:
                     <input type="text" value={gearName} onChange={(e) => setGearName(e.target.value)} />
                 </label>
                 <div className="modal-stats">
                     {Object.entries(soulSlotStats).map(([stat, value]) => (
                         <div key={stat} className="modal-stat-row">
-                            <span className="modal-stat-name">{stat}</span>
+                            <span className="modal-stat-name">{t[stat]}</span>
                             <span className="modal-stat-value">{value}</span>
                             <div className="modal-stat-buttons">
                                 <button onClick={() => handleSoulSlotStatChange(stat, -1)}>-</button>
@@ -33,34 +37,35 @@ const SoulSlotModal = ({
                     ))}
                 </div>
                 <div className="additional-stats-inputs">
-                    <h3>Additional Stats:</h3>
+                    <h3>{t.additionalStats}:</h3>
                     {soulSlotAdditionalStats.map((input, index) => (
                         <div key={index} className="additional-stat-input">
                             <input
                                 type="text"
                                 value={input.key}
                                 onChange={(e) => handleSoulSlotAdditionalStatChange(index, 'key', e.target.value)}
-                                placeholder="Stat name"
+                                placeholder={t.statName}
                             />
                             <input
                                 type="text"
                                 value={input.value}
                                 onChange={(e) => handleSoulSlotAdditionalStatChange(index, 'value', e.target.value)}
-                                placeholder="Value"
+                                placeholder={t.value}
                             />
-                            <button onClick={() => removeSoulSlotAdditionalStat(index)}>-</button>
+                            <button onClick={() => removeSoulSlotAdditionalStat(index)}>{t.remove}</button>
                         </div>
                     ))}
-                    <button onClick={addSoulSlotAdditionalStat}>+ Add Stat</button>
+                    <button onClick={addSoulSlotAdditionalStat}>{t.addStat}</button>
                 </div>
                 <div className="modal-buttons">
-                    <button onClick={handleSoulSlotSave}>Save</button>
-                    <button onClick={() => setShowSoulSlotModal(false)}>Close</button>
+                    <button onClick={handleSoulSlotSave}>{t.save}</button>
+                    <button onClick={() => setShowSoulSlotModal(false)}>{t.close}</button>
                 </div>
             </div>
         </div>
     );
 };
+
 SoulSlotModal.propTypes = {
     gearName: PropTypes.string.isRequired,
     setGearName: PropTypes.func.isRequired,
@@ -74,6 +79,8 @@ SoulSlotModal.propTypes = {
     removeSoulSlotAdditionalStat: PropTypes.func.isRequired,
     addSoulSlotAdditionalStat: PropTypes.func.isRequired,
     handleSoulSlotSave: PropTypes.func.isRequired,
-    setShowSoulSlotModal: PropTypes.func.isRequired
+    setShowSoulSlotModal: PropTypes.func.isRequired,
+    currentLanguage: PropTypes.string.isRequired
 };
+
 export default SoulSlotModal;

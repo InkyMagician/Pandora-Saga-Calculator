@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import EnchantmentConditionModal from './EnchantmentConditionModal';
+import translations from '../translations';
 
 const GearModal = ({
     gearName,
@@ -26,7 +27,8 @@ const GearModal = ({
     handleGearSave,
     setShowGearModal,
     onSaveGear,
-    onLoadGear
+    onLoadGear,
+    currentLanguage
 }) => {
     const [showEnchantmentConditionModal, setShowEnchantmentConditionModal] = useState(false);
     const [editingCondition, setEditingCondition] = useState(null);
@@ -34,6 +36,8 @@ const GearModal = ({
     const [showSaveConfirmation, setShowSaveConfirmation] = useState(false);
     const [localEnchantmentConditions, setLocalEnchantmentConditions] = useState(enchantmentConditions);
     const [localComboEffects, setLocalComboEffects] = useState(comboEffects);
+
+    const t = translations[currentLanguage];
 
     useEffect(() => {
         setLocalEnchantmentConditions(enchantmentConditions);
@@ -122,28 +126,28 @@ const GearModal = ({
         let conditionText = '';
         switch (condition.type) {
             case 'onEnchant':
-                conditionText = `On Enchant ${condition.enchantmentLevel}: `;
+                conditionText = `${t.onEnchant} ${condition.enchantmentLevel}: `;
                 break;
             case 'every1Enchant':
-                conditionText = 'Every 1 Enchant: ';
+                conditionText = `${t.every1Enchant}: `;
                 break;
             case 'every2Enchant':
-                conditionText = 'Every 2 Enchant: ';
+                conditionText = `${t.every2Enchant}: `;
                 break;
             case 'every3Enchant':
-                conditionText = 'Every 3 Enchant: ';
+                conditionText = `${t.every3Enchant}: `;
                 break;
             case 'fromXEvery1Enchant':
-                conditionText = `From ${condition.startingValue} Every 1 Enchant: `;
+                conditionText = `${t.fromXEvery1Enchant.replace('{X}', condition.startingValue)}: `;
                 break;
             default:
-                conditionText = 'Unknown Condition: ';
+                conditionText = `${t.unknownCondition}: `;
         }
 
         if (condition.isComboItem) {
-            conditionText += 'Combo with ';
+            conditionText += `${t.comboWith} `;
             condition.comboItems.forEach((item, i) => {
-                conditionText += `${item.type} "${item.name}"`;
+                conditionText += `${t[item.type.toLowerCase()]} "${item.name}"`;
                 if (i < condition.comboItems.length - 1) conditionText += ', ';
             });
             conditionText += ': ';
@@ -152,7 +156,7 @@ const GearModal = ({
         if (condition.perkType === 'mainStat' || condition.perkType === 'both') {
             Object.entries(condition.statValue).forEach(([stat, value]) => {
                 if (value > 0) {
-                    conditionText += `+${value} ${stat} `;
+                    conditionText += `+${value} ${t[stat]} `;
                 }
             });
         }
@@ -166,17 +170,16 @@ const GearModal = ({
         return (
             <div key={index} className="enchantment-condition">
                 {conditionText}
-                <button onClick={() => handleEditEnchantmentCondition(condition)}>Edit</button>
-                <button onClick={() => handleRemoveEnchantmentCondition(index)}>Remove</button>
+                <button onClick={() => handleEditEnchantmentCondition(condition)}>{t.edit}</button>
+                <button onClick={() => handleRemoveEnchantmentCondition(index)}>{t.remove}</button>
             </div>
         );
     };
-
     const renderComboEffect = (effect, index) => {
-        let effectText = 'Combo: ';
+        let effectText = `${t.combo}: `;
         if (effect.isComboItem) {
             effect.comboItems.forEach((item, i) => {
-                effectText += `${item.type} "${item.name}"`;
+                effectText += `${t[item.type.toLowerCase()]} "${item.name}"`;
                 if (i < effect.comboItems.length - 1) effectText += ', ';
             });
             effectText += ': ';
@@ -185,7 +188,7 @@ const GearModal = ({
         if (effect.perkType === 'mainStat' || effect.perkType === 'both') {
             Object.entries(effect.statValue).forEach(([stat, value]) => {
                 if (value > 0) {
-                    effectText += `+${value} ${stat} `;
+                    effectText += `+${value} ${t[stat]} `;
                 }
             });
         }
@@ -199,8 +202,8 @@ const GearModal = ({
         return (
             <div key={index} className="combo-effect">
                 {effectText}
-                <button onClick={() => handleEditComboEffect(effect)}>Edit</button>
-                <button onClick={() => handleRemoveComboEffect(index)}>Remove</button>
+                <button onClick={() => handleEditComboEffect(effect)}>{t.edit}</button>
+                <button onClick={() => handleRemoveComboEffect(index)}>{t.remove}</button>
             </div>
         );
     };
@@ -208,10 +211,10 @@ const GearModal = ({
     return (
         <div className="modal gear-modal">
             <div className="modal-content">
-                <h2>Gear Input</h2>
+                <h2>{t.gearInput}</h2>
                 <div className="gear-modal-scrollable-content">
                     <label>
-                        Name:
+                        {t.name}:
                         <input
                             type="text"
                             value={gearName}
@@ -221,7 +224,7 @@ const GearModal = ({
                     <div className="modal-stats">
                         {Object.entries(gearStats).map(([stat, value]) => (
                             <div key={stat} className="modal-stat-row">
-                                <span className="modal-stat-name">{stat}</span>
+                                <span className="modal-stat-name">{t[stat]}</span>
                                 <span className="modal-stat-value">{value}</span>
                                 <div className="modal-stat-buttons">
                                     <button onClick={() => handleGearStatChange(stat, -1)}>-</button>
@@ -231,28 +234,28 @@ const GearModal = ({
                         ))}
                     </div>
                     <div className="additional-stats-inputs">
-                        <h3>Additional Stats:</h3>
+                        <h3>{t.additionalStats}:</h3>
                         {additionalStatsInputs.map((input, index) => (
                             <div key={index} className="additional-stat-input">
                                 <input
                                     type="text"
                                     value={input.key}
                                     onChange={(e) => handleAdditionalStatChange(index, 'key', e.target.value)}
-                                    placeholder="Stat name"
+                                    placeholder={t.statName}
                                 />
                                 <input
                                     type="text"
                                     value={input.value}
                                     onChange={(e) => handleAdditionalStatChange(index, 'value', e.target.value)}
-                                    placeholder="Value"
+                                    placeholder={t.value}
                                 />
                                 <button onClick={() => removeAdditionalStatInput(index)}>-</button>
                             </div>
                         ))}
-                        <button onClick={addAdditionalStatInput}>+ Add Stat</button>
+                        <button onClick={addAdditionalStatInput}>{t.addStat}</button>
                     </div>
                     <label>
-                        Armor:
+                        {t.armor}:
                         <input
                             type="number"
                             value={gearArmor}
@@ -262,7 +265,7 @@ const GearModal = ({
                     {gearWithEnchantAndSoul.includes(selectedGearSlot) && (
                         <>
                             <label>
-                                Enchantment:
+                                {t.enchantment}:
                                 <input
                                     type="number"
                                     min="0"
@@ -272,14 +275,14 @@ const GearModal = ({
                                 />
                             </label>
                             <div className="scrollable-section">
-                                <h3>Enchantment Conditions</h3>
+                                <h3>{t.enchantmentConditions}</h3>
                                 <div className="scrollable-content">
                                     {localEnchantmentConditions.map(renderEnchantmentCondition)}
                                 </div>
-                                <button onClick={handleAddEnchantmentCondition}>Add Enchantment Condition</button>
+                                <button onClick={handleAddEnchantmentCondition}>{t.addEnchantmentCondition}</button>
                             </div>
                             <label>
-                                Soul Slots:
+                                {t.soulSlots}:
                                 <input
                                     type="number"
                                     value={gearSoulSlots}
@@ -289,20 +292,20 @@ const GearModal = ({
                         </>
                     )}
                     <div className="scrollable-section">
-                        <h3>Combo Effects</h3>
+                        <h3>{t.comboEffects}</h3>
                         <div className="scrollable-content">
                             {localComboEffects.map(renderComboEffect)}
                         </div>
-                        <button onClick={handleAddComboEffect}>Add Combo Effect</button>
+                        <button onClick={handleAddComboEffect}>{t.addComboEffect}</button>
                     </div>
                 </div>
                 <div className="modal-buttons">
-                    <button onClick={handleGearSave}>Save to Character</button>
-                    <button onClick={handleSaveGearItem}>Save Gear</button>
-                    <button onClick={() => onLoadGear(selectedGearSlot)}>Load Gear</button>
-                    <button onClick={() => setShowGearModal(false)}>Close</button>
+                    <button onClick={handleGearSave}>{t.saveToCharacter}</button>
+                    <button onClick={handleSaveGearItem}>{t.saveGear}</button>
+                    <button onClick={() => onLoadGear(selectedGearSlot)}>{t.loadGear}</button>
+                    <button onClick={() => setShowGearModal(false)}>{t.close}</button>
                 </div>
-                {showSaveConfirmation && <div className="save-confirmation">Gear saved successfully!</div>}
+                {showSaveConfirmation && <div className="save-confirmation">{t.gearSavedSuccessfully}</div>}
             </div>
             {showEnchantmentConditionModal && (
                 <EnchantmentConditionModal
@@ -310,12 +313,12 @@ const GearModal = ({
                     onClose={() => setShowEnchantmentConditionModal(false)}
                     initialCondition={editingCondition}
                     isComboEffect={isComboEffect}
+                    currentLanguage={currentLanguage}
                 />
             )}
         </div>
     );
 };
-
 GearModal.propTypes = {
     gearName: PropTypes.string.isRequired,
     setGearName: PropTypes.func.isRequired,
@@ -343,7 +346,8 @@ GearModal.propTypes = {
     handleGearSave: PropTypes.func.isRequired,
     setShowGearModal: PropTypes.func.isRequired,
     onSaveGear: PropTypes.func.isRequired,
-    onLoadGear: PropTypes.func.isRequired
+    onLoadGear: PropTypes.func.isRequired,
+    currentLanguage: PropTypes.string.isRequired
 };
 
 export default GearModal;

@@ -1,13 +1,13 @@
 // config.js
 
 export const gearWithEnchantAndSoul = [
-    'Helmet',
-    'Torso',
-    'Pants',
-    'Gloves',
-    'Boots',
-    'Shield',
-    'Weapon'
+    'helmet',
+    'torso',
+    'pants',
+    'gloves',
+    'boots',
+    'shield',
+    'weapon'
 ];
 
 export const armorEnchantmentRules = {

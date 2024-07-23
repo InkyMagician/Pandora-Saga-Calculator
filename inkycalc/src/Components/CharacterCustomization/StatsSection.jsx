@@ -1,5 +1,6 @@
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import PropTypes from 'prop-types';
+import translations from './translations';
 
 const StatsSection = ({
     statPoints,
@@ -10,8 +11,11 @@ const StatsSection = ({
     handleStatChange,
     additionalStats,
     selectedRace,
-    selectedClass
+    selectedClass,
+    currentLanguage
 }) => {
+    const t = translations[currentLanguage];
+
     const calculateStatCost = (currentValue) => {
         if (currentValue < 30) return 2;
         if (currentValue < 50) return 3;
@@ -33,7 +37,7 @@ const StatsSection = ({
 
         return (
             <div key={stat} className="stat-row">
-                <span className="stat-name">{stat}</span>
+                <span className="stat-name">{t[stat]}</span>
                 <div className="stat-details">
                     <span className="stat-value">{totalValue}</span>
                     <span className="stat-breakdown">
@@ -65,20 +69,20 @@ const StatsSection = ({
         <div className="stats-section">
             <div className="primary-stats-box">
                 <div className="stats-header">
-                    <div className="stat-points">Stat Points: {statPoints}</div>
+                    <div className="stat-points">{t.statPoints}: {statPoints}</div>
                 </div>
                 {!isStatChangeEnabled && (
-                    <div className="stats-warning">Select a race and class to modify stats</div>
+                    <div className="stats-warning">{t.selectRaceAndClass}</div>
                 )}
                 <div className="primary-stats">
                     {Object.keys(totalStats).map(renderStat)}
                 </div>
             </div>
             <div className="additional-stats-box">
-                <h3>Additional Stats</h3>
+                <h3>{t.additionalStats}</h3>
                 <ul>
                     {Object.entries(additionalStats).map(([stat, value]) => (
-                        <li key={stat}>{stat}: {value}</li>
+                        <li key={stat}>{t[stat] || stat}: {value}</li>
                     ))}
                 </ul>
             </div>
@@ -95,7 +99,8 @@ StatsSection.propTypes = {
     handleStatChange: PropTypes.func.isRequired,
     additionalStats: PropTypes.object.isRequired,
     selectedRace: PropTypes.string.isRequired,
-    selectedClass: PropTypes.string.isRequired
+    selectedClass: PropTypes.string.isRequired,
+    currentLanguage: PropTypes.string.isRequired
 };
 
 export default StatsSection;

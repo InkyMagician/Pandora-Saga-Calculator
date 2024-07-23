@@ -1,11 +1,20 @@
 ﻿import PropTypes from 'prop-types';
+import translations from './translations';
 
-const gearSlots = ['Helmet', 'Torso', 'Pants', 'Gloves', 'Boots', 'Shield', 'Necklace', 'Ring 1', 'Ring 2', 'Earrings 1', 'Earrings 2', 'Belt', 'Cloak', 'Weapon', 'Clock'];
+const gearSlots = [
+    'helmet', 'torso', 'pants',
+    'gloves', 'boots', 'shield',
+    'necklace', 'ring1', 'ring2',
+    'earrings1', 'earrings2', 'belt',
+    'cloak', 'weapon', 'clock'
+];
 
-const GearSection = ({ gear, handleGearClick, handleGearUnload, renderSoulSlots, totalArmor }) => {
+const GearSection = ({ gear, handleGearClick, handleGearUnload, renderSoulSlots, totalArmor, currentLanguage }) => {
+    const t = translations[currentLanguage];
+
     return (
         <div className="gear-section">
-            <h3>Gear</h3>
+            <h3>{t.gear}</h3>
             <div className="gear-buttons">
                 {gearSlots.map(slot => (
                     <button
@@ -13,7 +22,7 @@ const GearSection = ({ gear, handleGearClick, handleGearUnload, renderSoulSlots,
                         onClick={() => handleGearClick(slot)}
                         className="gear-button"
                     >
-                        {gear[slot]?.name || slot}
+                        {gear[slot]?.name || t[slot]}
                         {gear[slot] && (
                             <>
                                 <span
@@ -23,7 +32,7 @@ const GearSection = ({ gear, handleGearClick, handleGearUnload, renderSoulSlots,
                                         handleGearUnload(slot);
                                     }}
                                 >
-                                    ❌
+                                    {t.unload}
                                 </span>
                                 <div className="soul-slots">
                                     {renderSoulSlots(slot)}
@@ -33,10 +42,11 @@ const GearSection = ({ gear, handleGearClick, handleGearUnload, renderSoulSlots,
                     </button>
                 ))}
             </div>
-            <div className="total-armor">Total Armor: {totalArmor}</div>
+            <div className="total-armor">{t.totalArmor}: {totalArmor}</div>
         </div>
     );
 };
+
 GearSection.propTypes = {
     gear: PropTypes.objectOf(PropTypes.shape({
         name: PropTypes.string
@@ -44,6 +54,8 @@ GearSection.propTypes = {
     handleGearClick: PropTypes.func.isRequired,
     handleGearUnload: PropTypes.func.isRequired,
     renderSoulSlots: PropTypes.func.isRequired,
-    totalArmor: PropTypes.number.isRequired
+    totalArmor: PropTypes.number.isRequired,
+    currentLanguage: PropTypes.string.isRequired
 };
+
 export default GearSection;

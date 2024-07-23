@@ -1,32 +1,34 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
+import translations from './translations';
 
-const PresetsSection = ({ presets, loadPreset, deletePreset, updatePreset, savePreset }) => {
+const PresetsSection = ({ presets, loadPreset, deletePreset, updatePreset, savePreset, currentLanguage }) => {
     const [newPresetName, setNewPresetName] = useState('');
+    const t = translations[currentLanguage];
 
     const handleSavePreset = () => {
         if (newPresetName.trim()) {
             savePreset(newPresetName.trim());
             setNewPresetName('');
         } else {
-            alert('Please enter a name for the preset');
+            alert(t.enterPresetName);
         }
     };
 
     return (
         <div className="presets-section">
-            <h3>Saved Presets</h3>
+            <h3>{t.savedPresets}</h3>
             <div className="new-preset">
                 <input
                     type="text"
                     value={newPresetName}
                     onChange={(e) => setNewPresetName(e.target.value)}
-                    placeholder="New preset name"
+                    placeholder={t.newPresetName}
                 />
-                <button onClick={handleSavePreset}>Save New Preset</button>
+                <button onClick={handleSavePreset}>{t.saveNewPreset}</button>
             </div>
             {presets.length === 0 ? (
-                <p>No presets saved yet.</p>
+                <p>{t.noPresets}</p>
             ) : (
                 presets.map((preset, index) => (
                     <div key={index} className="preset-item">
@@ -36,19 +38,19 @@ const PresetsSection = ({ presets, loadPreset, deletePreset, updatePreset, saveP
                                 className="load-preset-button"
                                 onClick={() => loadPreset(preset)}
                             >
-                                Load
+                                {t.load}
                             </button>
                             <button
                                 className="update-preset-button"
                                 onClick={() => updatePreset(preset)}
                             >
-                                Update
+                                {t.update}
                             </button>
                             <button
                                 className="delete-preset-button"
                                 onClick={() => deletePreset(preset)}
                             >
-                                Delete
+                                {t.delete}
                             </button>
                         </div>
                     </div>
@@ -66,7 +68,8 @@ PresetsSection.propTypes = {
     loadPreset: PropTypes.func.isRequired,
     deletePreset: PropTypes.func.isRequired,
     updatePreset: PropTypes.func.isRequired,
-    savePreset: PropTypes.func.isRequired
+    savePreset: PropTypes.func.isRequired,
+    currentLanguage: PropTypes.string.isRequired
 };
 
 export default PresetsSection;
