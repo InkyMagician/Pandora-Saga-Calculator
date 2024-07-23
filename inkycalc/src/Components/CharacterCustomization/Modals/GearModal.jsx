@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import EnchantmentConditionModal from './EnchantmentConditionModal';
 
@@ -24,11 +24,21 @@ const GearModal = ({
     comboEffects,
     handleComboEffectSave,
     handleGearSave,
-    setShowGearModal
+    setShowGearModal,
+    onSaveGear,
+    onLoadGear
 }) => {
     const [showEnchantmentConditionModal, setShowEnchantmentConditionModal] = useState(false);
     const [editingCondition, setEditingCondition] = useState(null);
     const [isComboEffect, setIsComboEffect] = useState(false);
+    const [showSaveConfirmation, setShowSaveConfirmation] = useState(false);
+    const [localEnchantmentConditions, setLocalEnchantmentConditions] = useState(enchantmentConditions);
+    const [localComboEffects, setLocalComboEffects] = useState(comboEffects);
+
+    useEffect(() => {
+        setLocalEnchantmentConditions(enchantmentConditions);
+        setLocalComboEffects(comboEffects);
+    }, [enchantmentConditions, comboEffects]);
 
     const handleAddEnchantmentCondition = () => {
         setEditingCondition(null);
@@ -57,30 +67,55 @@ const GearModal = ({
     const handleSaveEnchantmentCondition = (condition) => {
         if (isComboEffect) {
             if (editingCondition) {
-                const newEffects = comboEffects.map(e => e === editingCondition ? condition : e);
+                const newEffects = localComboEffects.map(e => e === editingCondition ? condition : e);
+                setLocalComboEffects(newEffects);
                 handleComboEffectSave(newEffects);
             } else {
-                handleComboEffectSave([...comboEffects, condition]);
+                const newEffects = [...localComboEffects, condition];
+                setLocalComboEffects(newEffects);
+                handleComboEffectSave(newEffects);
             }
         } else {
             if (editingCondition) {
-                const newConditions = enchantmentConditions.map(c => c === editingCondition ? condition : c);
+                const newConditions = localEnchantmentConditions.map(c => c === editingCondition ? condition : c);
+                setLocalEnchantmentConditions(newConditions);
                 handleEnchantmentConditionSave(newConditions);
             } else {
-                handleEnchantmentConditionSave([...enchantmentConditions, condition]);
+                const newConditions = [...localEnchantmentConditions, condition];
+                setLocalEnchantmentConditions(newConditions);
+                handleEnchantmentConditionSave(newConditions);
             }
         }
         setShowEnchantmentConditionModal(false);
     };
 
     const handleRemoveEnchantmentCondition = (index) => {
-        const newConditions = enchantmentConditions.filter((_, i) => i !== index);
+        const newConditions = localEnchantmentConditions.filter((_, i) => i !== index);
+        setLocalEnchantmentConditions(newConditions);
         handleEnchantmentConditionSave(newConditions);
     };
 
     const handleRemoveComboEffect = (index) => {
-        const newEffects = comboEffects.filter((_, i) => i !== index);
+        const newEffects = localComboEffects.filter((_, i) => i !== index);
+        setLocalComboEffects(newEffects);
         handleComboEffectSave(newEffects);
+    };
+
+    const handleSaveGearItem = () => {
+        const gearItem = {
+            name: gearName,
+            type: selectedGearSlot,
+            stats: gearStats,
+            additionalStats: additionalStatsInputs,
+            armor: gearArmor,
+            enchantment: gearEnchantment,
+            soulSlots: gearSoulSlots,
+            enchantmentConditions: localEnchantmentConditions,
+            comboEffects: localComboEffects
+        };
+        onSaveGear(gearItem);
+        setShowSaveConfirmation(true);
+        setTimeout(() => setShowSaveConfirmation(false), 2000);
     };
 
     const renderEnchantmentCondition = (condition, index) => {
@@ -97,6 +132,9 @@ const GearModal = ({
                 break;
             case 'every3Enchant':
                 conditionText = 'Every 3 Enchant: ';
+                break;
+            case 'fromXEvery1Enchant':
+                conditionText = `From ${condition.startingValue} Every 1 Enchant: `;
                 break;
             default:
                 conditionText = 'Unknown Condition: ';
@@ -236,7 +274,7 @@ const GearModal = ({
                             <div className="scrollable-section">
                                 <h3>Enchantment Conditions</h3>
                                 <div className="scrollable-content">
-                                    {enchantmentConditions.map(renderEnchantmentCondition)}
+                                    {localEnchantmentConditions.map(renderEnchantmentCondition)}
                                 </div>
                                 <button onClick={handleAddEnchantmentCondition}>Add Enchantment Condition</button>
                             </div>
@@ -253,15 +291,18 @@ const GearModal = ({
                     <div className="scrollable-section">
                         <h3>Combo Effects</h3>
                         <div className="scrollable-content">
-                            {comboEffects.map(renderComboEffect)}
+                            {localComboEffects.map(renderComboEffect)}
                         </div>
                         <button onClick={handleAddComboEffect}>Add Combo Effect</button>
                     </div>
                 </div>
                 <div className="modal-buttons">
-                    <button onClick={handleGearSave}>Save</button>
+                    <button onClick={handleGearSave}>Save to Character</button>
+                    <button onClick={handleSaveGearItem}>Save Gear</button>
+                    <button onClick={() => onLoadGear(selectedGearSlot)}>Load Gear</button>
                     <button onClick={() => setShowGearModal(false)}>Close</button>
                 </div>
+                {showSaveConfirmation && <div className="save-confirmation">Gear saved successfully!</div>}
             </div>
             {showEnchantmentConditionModal && (
                 <EnchantmentConditionModal
@@ -300,7 +341,9 @@ GearModal.propTypes = {
     comboEffects: PropTypes.array.isRequired,
     handleComboEffectSave: PropTypes.func.isRequired,
     handleGearSave: PropTypes.func.isRequired,
-    setShowGearModal: PropTypes.func.isRequired
+    setShowGearModal: PropTypes.func.isRequired,
+    onSaveGear: PropTypes.func.isRequired,
+    onLoadGear: PropTypes.func.isRequired
 };
 
 export default GearModal;

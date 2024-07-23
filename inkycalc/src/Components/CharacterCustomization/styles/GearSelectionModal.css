@@ -1,0 +1,134 @@
+.gear-selection-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+    .gear-selection-modal .modal-content {
+        background-color: #f0f0f0;
+        padding: 20px;
+        border-radius: 5px;
+        max-width: 80%;
+        max-height: 80%;
+        overflow-y: auto;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .gear-selection-modal h2 {
+        margin-top: 0;
+        color: #333;
+    }
+
+    .gear-selection-modal .search-input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    .gear-selection-modal .sort-controls {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+
+    .gear-selection-modal .sort-button {
+        padding: 5px 10px;
+        background-color: #f0f0f0;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+        .gear-selection-modal .sort-button.active {
+            background-color: #e0e0e0;
+        }
+
+    .gear-selection-modal .gear-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+    }
+
+    .gear-selection-modal .gear-item {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 10px;
+        transition: box-shadow 0.3s ease;
+    }
+
+        .gear-selection-modal .gear-item:hover {
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .gear-selection-modal .gear-item h3 {
+            margin-top: 0;
+            color: #444;
+        }
+
+        .gear-selection-modal .gear-item p {
+            margin: 5px 0;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+    .gear-selection-modal .gear-stats,
+    .gear-selection-modal .gear-additional-stats {
+        margin-top: 10px;
+        font-size: 0.8em;
+        color: #777;
+    }
+
+    .gear-selection-modal .gear-item-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px;
+    }
+
+        .gear-selection-modal .gear-item-actions button {
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+            .gear-selection-modal .gear-item-actions button:hover {
+                background-color: #45a049;
+            }
+
+            .gear-selection-modal .gear-item-actions button:last-child {
+                background-color: #f44336;
+            }
+
+                .gear-selection-modal .gear-item-actions button:last-child:hover {
+                    background-color: #d32f2f;
+                }
+
+    .gear-selection-modal .close-button {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        margin-top: 20px;
+        background-color: #2196F3;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+        .gear-selection-modal .close-button:hover {
+            background-color: #1976D2;
+        }

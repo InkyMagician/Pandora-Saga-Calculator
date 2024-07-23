@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
-import '../styles/EnchantmentConditionModal.css'; // Make sure to create this CSS file
+import '../styles/EnchantmentConditionModal.css';
 
 const EnchantmentConditionModal = ({ onSave, onClose, initialCondition, isComboEffect }) => {
     const [conditionType, setConditionType] = useState(initialCondition?.type || '');
@@ -10,6 +10,7 @@ const EnchantmentConditionModal = ({ onSave, onClose, initialCondition, isComboE
     const [additionalStats, setAdditionalStats] = useState(initialCondition?.additionalStats || []);
     const [isComboItem, setIsComboItem] = useState(initialCondition?.isComboItem || false);
     const [comboItems, setComboItems] = useState(initialCondition?.comboItems || []);
+    const [startingValue, setStartingValue] = useState(initialCondition?.startingValue || 1);
 
     const handleSave = () => {
         const condition = {
@@ -20,6 +21,7 @@ const EnchantmentConditionModal = ({ onSave, onClose, initialCondition, isComboE
             additionalStats,
             isComboItem,
             comboItems,
+            startingValue: conditionType === 'fromXEvery1Enchant' ? startingValue : null,
         };
         onSave(condition);
         onClose();
@@ -74,6 +76,7 @@ const EnchantmentConditionModal = ({ onSave, onClose, initialCondition, isComboE
                             <option value="every1Enchant">Every 1 Enchant</option>
                             <option value="every2Enchant">Every 2 Enchant</option>
                             <option value="every3Enchant">Every 3 Enchant</option>
+                            <option value="fromXEvery1Enchant">From X Every 1 Enchant</option>
                         </select>
                     )}
 
@@ -85,6 +88,17 @@ const EnchantmentConditionModal = ({ onSave, onClose, initialCondition, isComboE
                             value={enchantmentLevel}
                             onChange={(e) => setEnchantmentLevel(parseInt(e.target.value))}
                             placeholder="Enchantment Level"
+                        />
+                    )}
+
+                    {conditionType === 'fromXEvery1Enchant' && (
+                        <input
+                            type="number"
+                            min="1"
+                            max="10"
+                            value={startingValue}
+                            onChange={(e) => setStartingValue(parseInt(e.target.value))}
+                            placeholder="Starting Value"
                         />
                     )}
 

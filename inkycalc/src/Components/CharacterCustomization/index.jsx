@@ -7,6 +7,7 @@ import GearModal from './Modals/GearModal';
 import MoonModal from './Modals/MoonModal';
 import SoulSlotModal from './Modals/SoulSlotModal';
 import PresetModal from './Modals/PresetModal';
+import GearSelectionModal from './Modals/GearSelectionModal';
 import { gearWithEnchantAndSoul, armorEnchantmentRules, defaultBaseStats } from './config';
 import './styles/global.css';
 import './styles/layout.css';
@@ -55,6 +56,8 @@ const CharacterCustomization = () => {
     const [showPresetModal, setShowPresetModal] = useState(false);
     const [enchantmentConditions, setEnchantmentConditions] = useState({});
     const [comboEffects, setComboEffects] = useState({});
+    const [savedGear, setSavedGear] = useState({});
+    const [showGearSelectionModal, setShowGearSelectionModal] = useState(false);
     useEffect(() => {
         if (selectedRace && selectedClass) {
             const newBaseStats = defaultBaseStats[selectedRace][selectedClass];
@@ -72,6 +75,23 @@ const CharacterCustomization = () => {
         }
     }, []);
 
+    useEffect(() => {
+        // Load saved gear from localStorage on component mount
+        const loadedGear = localStorage.getItem('savedGear');
+        if (loadedGear) {
+            setSavedGear(JSON.parse(loadedGear));
+        }
+    }, []);
+    useEffect(() => {
+        // Load saved gear data from file on component mount
+        if (window.electronAPI) {
+            window.electronAPI.loadGearData().then(loadedGear => {
+                if (loadedGear) {
+                    setSavedGear(loadedGear);
+                }
+            });
+        }
+    }, []);
     const updateTotalStats = useCallback((base, equipment, manual) => {
         setTotalStats({
             STA: base.STA + manual.STA + equipment.STA,
@@ -110,6 +130,10 @@ const CharacterCustomization = () => {
                     case 'every3Enchant':
                         multiplier = Math.floor(gearItem.enchantment / 3);
                         shouldApply = gearItem.enchantment >= 3;
+                        break;
+                    case 'fromXEvery1Enchant':
+                        multiplier = Math.floor((gearItem.enchantment - (condition.startingValue - 1)) / 1);
+                        shouldApply = gearItem.enchantment >= condition.startingValue;
                         break;
                 }
             }
@@ -157,7 +181,6 @@ const CharacterCustomization = () => {
 
         return appliedStats;
     }, []);
-
     const updateEquipmentStats = useCallback((newGear, newMoon1 = selectedMoon1, newMoon3 = selectedMoon3) => {
         const newEquipmentStats = { STA: 0, STR: 0, AGI: 0, DEX: 0, SPI: 0, INT: 0 };
         const newAdditionalStats = {};
@@ -208,6 +231,7 @@ const CharacterCustomization = () => {
         updateTotalStats(baseStats, newEquipmentStats, manualStats);
         setAdditionalStats(newAdditionalStats);
     }, [selectedMoon1, selectedMoon3, soulSlotData, baseStats, manualStats, updateTotalStats, applyEnchantmentConditions]);
+
     const updateTotalArmor = useCallback((newGear) => {
         const totalArmor = Object.values(newGear).reduce((sum, item) => {
             const baseArmor = item.armor || 0;
@@ -216,6 +240,7 @@ const CharacterCustomization = () => {
         }, 0);
         setTotalArmor(totalArmor);
     }, []);
+
     const calculateStatCost = (currentValue) => {
         if (currentValue < 30) return 2;
         if (currentValue < 50) return 3;
@@ -291,7 +316,6 @@ const CharacterCustomization = () => {
     const addAdditionalStatInput = () => {
         setAdditionalStatsInputs([...additionalStatsInputs, { key: '', value: '' }]);
     };
-
     const handleGearSave = () => {
         const newGearItem = {
             name: gearName,
@@ -369,27 +393,6 @@ const CharacterCustomization = () => {
         setShowMoonModal(true);
     };
 
-    const handleMoonStatChange = (stat, value) => {
-        setMoonStats(prevStats => ({
-            ...prevStats,
-            [stat]: Math.max(0, prevStats[stat] + value)
-        }));
-    };
-
-    const handleMoonAdditionalStatChange = (index, field, value) => {
-        const newInputs = [...moonAdditionalStats];
-        newInputs[index][field] = value;
-        setMoonAdditionalStats(newInputs);
-    };
-
-    const removeMoonAdditionalStat = (index) => {
-        setMoonAdditionalStats(moonAdditionalStats.filter((_, i) => i !== index));
-    };
-
-    const addMoonAdditionalStat = () => {
-        setMoonAdditionalStats([...moonAdditionalStats, { key: '', value: '' }]);
-    };
-
     const handleMoonSave = () => {
         const moonData = {
             name: gearName,
@@ -404,6 +407,7 @@ const CharacterCustomization = () => {
         updateEquipmentStats(gear, selectedMoonSlot === 'moon1' ? moonData : selectedMoon1, selectedMoonSlot === 'moon3' ? moonData : selectedMoon3);
         setShowMoonModal(false);
     };
+
     const handleSoulSlotClick = (slot, index) => {
         setSelectedSoulSlot({ slot, index });
         const existingSoulSlot = soulSlotData[slot]?.[index];
@@ -417,27 +421,6 @@ const CharacterCustomization = () => {
             setSoulSlotAdditionalStats([]);
         }
         setShowSoulSlotModal(true);
-    };
-
-    const handleSoulSlotStatChange = (stat, value) => {
-        setSoulSlotStats(prevStats => ({
-            ...prevStats,
-            [stat]: Math.max(0, prevStats[stat] + value)
-        }));
-    };
-
-    const handleSoulSlotAdditionalStatChange = (index, field, value) => {
-        const newInputs = [...soulSlotAdditionalStats];
-        newInputs[index][field] = value;
-        setSoulSlotAdditionalStats(newInputs);
-    };
-
-    const removeSoulSlotAdditionalStat = (index) => {
-        setSoulSlotAdditionalStats(soulSlotAdditionalStats.filter((_, i) => i !== index));
-    };
-
-    const addSoulSlotAdditionalStat = () => {
-        setSoulSlotAdditionalStats([...soulSlotAdditionalStats, { key: '', value: '' }]);
     };
 
     const handleSoulSlotSave = () => {
@@ -474,7 +457,7 @@ const CharacterCustomization = () => {
             soulSlotData,
             enchantmentConditions,
             comboEffects,
-            remainingStatPoints: statPoints // Save remaining stat points
+            remainingStatPoints: statPoints
         };
 
         const updatedPresets = [...presets, newPreset];
@@ -495,7 +478,7 @@ const CharacterCustomization = () => {
         setSoulSlotData(preset.soulSlotData);
         setEnchantmentConditions(preset.enchantmentConditions || {});
         setComboEffects(preset.comboEffects || {});
-        setStatPoints(preset.remainingStatPoints || 584); // Load remaining stat points or default to 584 if not found
+        setStatPoints(preset.remainingStatPoints || 584);
 
         updateEquipmentStats(preset.gear, preset.moon1, preset.moon3);
         updateTotalArmor(preset.gear);
@@ -513,9 +496,8 @@ const CharacterCustomization = () => {
             soulSlotData,
             enchantmentConditions,
             comboEffects,
-            remainingStatPoints: statPoints // Update remaining stat points
+            remainingStatPoints: statPoints
         };
-
 
         const updatedPresets = presets.map(preset =>
             preset.name === presetToUpdate.name ? updatedPreset : preset
@@ -535,6 +517,66 @@ const CharacterCustomization = () => {
         if (window.electronAPI) {
             window.electronAPI.savePresets(updatedPresets);
         }
+    };
+
+    const handleSavePreset = () => {
+        setShowPresetModal(true);
+    };
+
+    const handlePresetSave = () => {
+        if (presetName.trim()) {
+            savePreset(presetName);
+            setPresetName('');
+            setShowPresetModal(false);
+        } else {
+            alert('Please enter a name for the preset');
+        }
+    };
+
+    const handleSaveGear = (gearItem) => {
+        setSavedGear(prev => {
+            const updatedGear = {
+                ...prev,
+                [gearItem.type]: [...(prev[gearItem.type] || []), gearItem]
+            };
+
+            // Save the updated gear data to a file
+            if (window.electronAPI) {
+                window.electronAPI.saveGearData(updatedGear);
+            }
+
+            return updatedGear;
+        });
+    };
+
+    const handleLoadGear = (type) => {
+        setSelectedGearSlot(type);
+        setShowGearSelectionModal(true);
+    };
+
+    const handleSelectGear = (selectedGear) => {
+        setGear(prev => ({ ...prev, [selectedGear.type]: selectedGear }));
+        setShowGearSelectionModal(false);
+        updateEquipmentStats({ ...gear, [selectedGear.type]: selectedGear });
+        updateTotalArmor({ ...gear, [selectedGear.type]: selectedGear });
+
+        // Update enchantment conditions and combo effects
+        setEnchantmentConditions(prev => ({
+            ...prev,
+            [selectedGear.type]: selectedGear.enchantmentConditions || []
+        }));
+        setComboEffects(prev => ({
+            ...prev,
+            [selectedGear.type]: selectedGear.comboEffects || []
+        }));
+
+        // Set the current gear data for the modal
+        setGearName(selectedGear.name);
+        setGearStats(selectedGear.stats);
+        setAdditionalStatsInputs(selectedGear.additionalStats || []);
+        setGearEnchantment(selectedGear.enchantment || 0);
+        setGearSoulSlots(selectedGear.soulSlots || 0);
+        setGearArmor(selectedGear.armor || 0);
     };
 
     const renderSoulSlots = (slot) => {
@@ -558,7 +600,7 @@ const CharacterCustomization = () => {
                 selectedMoon1={selectedMoon1}
                 selectedMoon3={selectedMoon3}
                 handleMoonClick={handleMoonClick}
-                setShowPresetModal={setShowPresetModal}
+                handleSavePreset={handleSavePreset}
             />
             <div className="content">
                 <GearSection
@@ -585,8 +627,16 @@ const CharacterCustomization = () => {
                 loadPreset={loadPreset}
                 deletePreset={deletePreset}
                 updatePreset={updatePreset}
-                savePreset={savePreset}
+                savePreset={handleSavePreset}
             />
+            {showPresetModal && (
+                <PresetModal
+                    presetName={presetName}
+                    setPresetName={setPresetName}
+                    savePreset={handlePresetSave}
+                    setShowPresetModal={setShowPresetModal}
+                />
+            )}
             {showGearModal && (
                 <GearModal
                     gearName={gearName}
@@ -611,6 +661,8 @@ const CharacterCustomization = () => {
                     handleComboEffectSave={(newEffects) => handleComboEffectSave(selectedGearSlot, newEffects)}
                     handleGearSave={handleGearSave}
                     setShowGearModal={setShowGearModal}
+                    onSaveGear={handleSaveGear}
+                    onLoadGear={handleLoadGear}
                 />
             )}
             {showMoonModal && (
@@ -618,11 +670,15 @@ const CharacterCustomization = () => {
                     gearName={gearName}
                     setGearName={setGearName}
                     moonStats={moonStats}
-                    handleMoonStatChange={handleMoonStatChange}
+                    handleMoonStatChange={(stat, value) => setMoonStats(prev => ({ ...prev, [stat]: Math.max(0, prev[stat] + value) }))}
                     moonAdditionalStats={moonAdditionalStats}
-                    handleMoonAdditionalStatChange={handleMoonAdditionalStatChange}
-                    removeMoonAdditionalStat={removeMoonAdditionalStat}
-                    addMoonAdditionalStat={addMoonAdditionalStat}
+                    handleMoonAdditionalStatChange={(index, field, value) => {
+                        const newStats = [...moonAdditionalStats];
+                        newStats[index] = { ...newStats[index], [field]: value };
+                        setMoonAdditionalStats(newStats);
+                    }}
+                    removeMoonAdditionalStat={(index) => setMoonAdditionalStats(prev => prev.filter((_, i) => i !== index))}
+                    addMoonAdditionalStat={() => setMoonAdditionalStats(prev => [...prev, { key: '', value: '' }])}
                     handleMoonSave={handleMoonSave}
                     setShowMoonModal={setShowMoonModal}
                 />
@@ -632,21 +688,38 @@ const CharacterCustomization = () => {
                     gearName={gearName}
                     setGearName={setGearName}
                     soulSlotStats={soulSlotStats}
-                    handleSoulSlotStatChange={handleSoulSlotStatChange}
+                    handleSoulSlotStatChange={(stat, value) => setSoulSlotStats(prev => ({ ...prev, [stat]: Math.max(0, prev[stat] + value) }))}
                     soulSlotAdditionalStats={soulSlotAdditionalStats}
-                    handleSoulSlotAdditionalStatChange={handleSoulSlotAdditionalStatChange}
-                    removeSoulSlotAdditionalStat={removeSoulSlotAdditionalStat}
-                    addSoulSlotAdditionalStat={addSoulSlotAdditionalStat}
+                    handleSoulSlotAdditionalStatChange={(index, field, value) => {
+                        const newStats = [...soulSlotAdditionalStats];
+                        newStats[index] = { ...newStats[index], [field]: value };
+                        setSoulSlotAdditionalStats(newStats);
+                    }}
+                    removeSoulSlotAdditionalStat={(index) => setSoulSlotAdditionalStats(prev => prev.filter((_, i) => i !== index))}
+                    addSoulSlotAdditionalStat={() => setSoulSlotAdditionalStats(prev => [...prev, { key: '', value: '' }])}
                     handleSoulSlotSave={handleSoulSlotSave}
                     setShowSoulSlotModal={setShowSoulSlotModal}
                 />
             )}
-            {showPresetModal && (
-                <PresetModal
-                    presetName={presetName}
-                    setPresetName={setPresetName}
-                    savePreset={savePreset}
-                    setShowPresetModal={setShowPresetModal}
+            {showGearSelectionModal && (
+                <GearSelectionModal
+                    gearType={selectedGearSlot}
+                    savedGear={savedGear[selectedGearSlot] || []}
+                    onSelectGear={handleSelectGear}
+                    onClose={() => setShowGearSelectionModal(false)}
+                    onDeleteGear={(type, index) => {
+                        setSavedGear(prev => {
+                            const updatedGear = { ...prev };
+                            updatedGear[type] = updatedGear[type].filter((_, i) => i !== index);
+
+                            // Save the updated gear data to a file
+                            if (window.electronAPI) {
+                                window.electronAPI.saveGearData(updatedGear);
+                            }
+
+                            return updatedGear;
+                        });
+                    }}
                 />
             )}
         </div>
