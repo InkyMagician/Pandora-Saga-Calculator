@@ -11,8 +11,6 @@ Cross-platform desktop application (Windows, macOS, Linux)
 
 Installation:
 
-Clone the repository:
-git clone https://github.com/yourusername/inkycalc.git
 
 Contributions are welcome! If you find any issues or have suggestions for improvements, please open an issue or submit a pull request.
 Before contributing, please read the contribution guidelines.
